@@ -72,28 +72,27 @@ class _PostState extends State<Post> {
       //       .delete();
       // }
     }
-
     await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser?.uid)
-        .update({
-      'posts': FieldValue.arrayUnion(
-        [
-          {
-            'comments': [
-              // {
-              //   'comment': '',
-              //   'commentUserId': '',
-              // },
-            ],
-            'likes': [],
-            'postDescription': postCont.text.isEmpty ? '' : postCont.text,
-            'postImage': (imageFile != null) ? imageUrl : '',
-            'postDate': DateTime.now(),
-            'postImagePath': imagePath ?? '',
-          }
-        ],
-      ),
+        .get()
+        .then((value) async {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('posts')
+          .add({
+        'commentId': [],
+        'commentDescription': [],
+        'likes': [],
+        'userName': value.data()!['userName'],
+        'personalImage': value.data()!['personalImage'],
+        'userId': value.data()!['userId'],
+        'postDescription': postCont.text.isEmpty ? '' : postCont.text,
+        'postImage': (imageFile != null) ? imageUrl : '',
+        'postDate': DateTime.now(),
+        'postImagePath': imagePath ?? '',
+      });
     });
 
     Navigator.pop;

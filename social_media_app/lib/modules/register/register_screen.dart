@@ -93,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'userNameArray': userNameArray,
       'followers': [],
       'following': [],
-      'posts': [],
+      // 'posts': [],
     });
   }
 

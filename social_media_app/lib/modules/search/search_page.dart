@@ -191,6 +191,17 @@ class _SearchState extends State<Search> {
                                                 "${data[index].data()['userId']}"
                                               ])
                                             });
+                                            await FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(data[index]
+                                                    .data()['userId'])
+                                                .update({
+                                              'followers':
+                                                  FieldValue.arrayRemove([
+                                                (FirebaseAuth
+                                                    .instance.currentUser!.uid)
+                                              ])
+                                            });
                                           } else {
                                             await FirebaseFirestore.instance
                                                 .collection('users')
@@ -200,6 +211,20 @@ class _SearchState extends State<Search> {
                                               'following':
                                                   FieldValue.arrayUnion([
                                                 "${data[index].data()['userId']}"
+                                              ])
+                                              // [
+                                              //   data[index].data()['userId']
+                                              // ]
+                                            });
+                                            await FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(data[index]
+                                                    .data()['userId'])
+                                                .update({
+                                              'followers':
+                                                  FieldValue.arrayUnion([
+                                                (FirebaseAuth
+                                                    .instance.currentUser!.uid)
                                               ])
                                               // [
                                               //   data[index].data()['userId']

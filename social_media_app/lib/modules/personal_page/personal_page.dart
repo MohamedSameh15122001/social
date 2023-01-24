@@ -13,6 +13,31 @@ class PersonalPage extends StatefulWidget {
 }
 
 class _PersonalPageState extends State<PersonalPage> {
+  List myPosts = [];
+  getMyPosts() async {
+    myPosts = [];
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('posts')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        myPosts.add(element.data());
+      }
+    });
+    setState(() {});
+    // print(myPosts);
+    // print(myPosts.length);
+    // print(']]]]]]]]]]]]]]]]]]]]]]]]]]]');
+  }
+
+  @override
+  void initState() {
+    getMyPosts();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -120,7 +145,7 @@ class _PersonalPageState extends State<PersonalPage> {
                                             setState(() {});
                                           },
                                           child: Text(
-                                            '${datadata?.data()['posts'].length}',
+                                            '${myPosts.length}',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 20,
@@ -183,35 +208,46 @@ class _PersonalPageState extends State<PersonalPage> {
                       ),
                     ),
                   ),
-                ), //second section
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: GridView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: datadata?.data()['posts'].length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                      ),
-                      itemBuilder: (context, index) {
-                        // print(datadata?.data()['posts'][0]['postImage']);
-                        // print(index.toString());
-                        // print('===================================');
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              '${datadata?.data()['posts'][index]['postImage']}',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
                 ),
+                //second section
+                myPosts.isEmpty
+                    ? const Expanded(
+                        child: Center(
+                          child: Text('no posts'),
+                        ),
+                      )
+                    : Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: GridView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: myPosts.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                            ),
+                            itemBuilder: (context, index) {
+                              // print(datadata?.data()['posts'][0]['postImage']);
+                              // print(index.toString());
+                              // print('===================================');
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: myPosts[index]['postImage'] == ''
+                                      ? Center(
+                                          child: Text(myPosts[index]
+                                              ['postDescription']))
+                                      : Image.network(
+                                          '${myPosts[index]['postImage']}',
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
               ],
             );
           }

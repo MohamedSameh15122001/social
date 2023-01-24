@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/models/user_model.dart';
+import 'package:social_media_app/modules/comment/comment.dart';
 import 'package:social_media_app/modules/search/search_page.dart';
 import 'package:social_media_app/modules/settings_page/settings_page.dart';
 import 'package:social_media_app/shared/constants.dart';
@@ -20,6 +21,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var commentCont = TextEditingController();
+  void printWrapped(String text) {
+    final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  }
+
   late List following;
   getFollowing() async {
     var ref = await FirebaseFirestore.instance
@@ -28,31 +35,52 @@ class _HomePageState extends State<HomePage> {
         .get()
         .then((value) async {
       following = await value.data()!['following'];
-      // print(value.data()!['following']);
-      // print('=========================');
+      print(following);
+      print('=========================');
     });
   }
 
-  Map<String, dynamic> allData = {};
-  getAllData() async {
-    var ref = await FirebaseFirestore.instance
-        .collection('users')
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        element.data().addAll(allData);
-      }
-    });
+  List allData = [];
+  List documentId = [];
+  // Map<String, dynamic>? allData = {};
+  Future getAllData() async {
+    await getFollowing();
+    allData = [];
+    documentId = [];
+    for (var i = 0; i < following.length; i++) {
+      var ref = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(following[i])
+          .collection('posts')
+          .get()
+          .then((value) {
+        allData.add([]);
+        documentId.add([]);
+        for (var element in value.docs) {
+          allData[i].add(element.data());
+          documentId[i].add(element.id);
+        }
+        // allData.add(value.data());
+        // print(value.data());
+        // print('===================');
+      }).catchError((e) {
+        print(e.toString());
+      });
+    }
     // print(allData);
-    // print('=====================');
+    // print(documentId);
+    // print(allData[0]!['posts'].length);
+    print('===================');
+    setState(() {});
   }
 
   @override
   void initState() {
-    super.initState();
-    // getAllData();
-    getFollowing();
+    // getFollowing();
+    getAllData();
+
     internetConection(context);
+    super.initState();
   }
 
   @override
@@ -133,14 +161,17 @@ class _HomePageState extends State<HomePage> {
         future: getdata(),
         builder: (BuildContext context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+          // getAllData();
+
           if (snapshot.hasData) {
             List<QueryDocumentSnapshot<Map<String, dynamic>>>? data =
                 snapshot.data?.docs;
             QueryDocumentSnapshot<Map<String, dynamic>>? datadata;
-
+            // getAllData();
             for (var i = 0; i < data!.length; i++) {
               datadata = data[i];
             }
+
             // print(datadata!.data());
             // print('=====================');
 
@@ -149,6 +180,7 @@ class _HomePageState extends State<HomePage> {
             // data!.map((e) => model = UserModel.fromMap(e.data()));
             // print(model!.age);
             // print('======================================');
+
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -192,125 +224,241 @@ class _HomePageState extends State<HomePage> {
                       right: 25.0,
                       bottom: 20,
                     ),
-                    child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: 2,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 20.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.grey,
-                                  spreadRadius: 1,
-                                  blurRadius: 4,
-                                )
-                              ],
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                          'https://www.thaqafnafsak.com/wp-content/uploads/2014/07/the-fiery-english-alphabet-picture-f_1920x1200_73620.jpg'),
-                                      radius: 24,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'userModel.userName',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                    child: (allData.isEmpty)
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: following.length,
+                            itemBuilder: (context, thebig) {
+                              // print(allData[thebig]!['posts'].length);
+                              // print(
+                              //     '================================================');
+                              return ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: allData[thebig].length,
+                                  itemBuilder: (context, index) {
+                                    // print(allData[thebig]['userName']);
+                                    // print(']]]]]]]]]]]]]]]]]]]]]]]]]]]]');
+                                    // print(allData[thebig]!['personalImage']);
+                                    // print(
+                                    //     '=======================================');
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 20.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Colors.grey,
+                                              spreadRadius: 1,
+                                              blurRadius: 4,
+                                            )
+                                          ],
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(30),
                                         ),
-                                        Text(
-                                          'Traveler, Life Lover',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 9,
-                                          ),
+                                        padding: const EdgeInsets.all(20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                      '${allData[thebig][index]!['personalImage']}'),
+                                                  radius: 24,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${allData[thebig][index]!['userName']}',
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '12/12/2012',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 9,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const Spacer(),
+                                                const Icon(Icons.list_rounded)
+                                              ],
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                                '${allData[thebig]![index]['postDescription']}'),
+                                            const SizedBox(height: 10),
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                              child: allData[thebig]![index]
+                                                          ['postImage']
+                                                      .isNotEmpty
+                                                  ? Image.network(
+                                                      '${allData[thebig][index]['postImage']}')
+                                                  : Container(),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 14.0),
+                                              child: Row(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      if (allData[thebig]![
+                                                              index]['likes']
+                                                          .contains(FirebaseAuth
+                                                              .instance
+                                                              .currentUser!
+                                                              .uid)) {
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection('users')
+                                                            .doc(
+                                                                allData[thebig]![
+                                                                        index]
+                                                                    ['userId'])
+                                                            .collection('posts')
+                                                            .doc(documentId[
+                                                                thebig][index])
+                                                            .update({
+                                                          'likes': FieldValue
+                                                              .arrayRemove([
+                                                            (FirebaseAuth
+                                                                .instance
+                                                                .currentUser
+                                                                ?.uid)
+                                                          ])
+                                                        });
+                                                      } else {
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection('users')
+                                                            .doc(
+                                                                allData[thebig]![
+                                                                        index]
+                                                                    ['userId'])
+                                                            .collection('posts')
+                                                            .doc(documentId[
+                                                                thebig][index])
+                                                            .update({
+                                                          'likes': FieldValue
+                                                              .arrayUnion([
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser
+                                                                ?.uid,
+                                                          ]),
+                                                        });
+                                                      }
+                                                      getAllData();
+                                                      // setState(() {});
+                                                    },
+                                                    child: Icon(
+                                                      Icons.favorite,
+                                                      color: allData[thebig]![
+                                                                      index]
+                                                                  ['likes']
+                                                              .contains(
+                                                                  FirebaseAuth
+                                                                      .instance
+                                                                      .currentUser!
+                                                                      .uid)
+                                                          ? Colors.red
+                                                          : const Color
+                                                                  .fromARGB(255,
+                                                              122, 143, 166),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '${allData[thebig]![index]['likes'].length}',
+                                                    style: const TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 122, 143, 166),
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  const SizedBox(width: 40),
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      getAllData();
+                                                      Navigator.push(context,
+                                                          MaterialPageRoute(
+                                                        builder: (context) {
+                                                          return Comment(
+                                                            commentId: allData[
+                                                                        thebig]![
+                                                                    index]
+                                                                ['commentId'],
+                                                            commentDescription:
+                                                                allData[thebig]![
+                                                                        index][
+                                                                    'commentDescription'],
+                                                            postUserId:
+                                                                allData[thebig]![
+                                                                        index]
+                                                                    ['userId'],
+                                                            postId: documentId[
+                                                                thebig][index],
+                                                          );
+                                                        },
+                                                      ));
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.comment_rounded,
+                                                      color: Color.fromARGB(
+                                                          255, 122, 143, 166),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '${allData[thebig]![index]['commentId'].length}',
+                                                    style: const TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 122, 143, 166),
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  // const SizedBox(width: 40),
+                                                  // const Icon(
+                                                  //   Icons.heart_broken,
+                                                  //   color: Color.fromARGB(
+                                                  //       255, 122, 143, 166),
+                                                  // ),
+                                                  // const SizedBox(width: 4),
+                                                  // const Text(
+                                                  //   '12',
+                                                  //   style: TextStyle(
+                                                  //       color: Color.fromARGB(
+                                                  //           255, 122, 143, 166),
+                                                  //       fontWeight: FontWeight.bold),
+                                                  // ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    const Spacer(),
-                                    const Icon(Icons.list_rounded)
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                    'this is my first post in my new app,this is my first post in my new app,'),
-                                const SizedBox(height: 10),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(18),
-                                  child: Image.network(
-                                      'https://www.diethelmtravel.com/wp-content/uploads/2016/04/bill-gates-wealthiest-person.jpg'),
-                                ),
-                                const SizedBox(height: 20),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 14.0),
-                                  child: Row(
-                                    children: const [
-                                      Icon(
-                                        Icons.heart_broken,
-                                        color:
-                                            Color.fromARGB(255, 122, 143, 166),
                                       ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        '12',
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 122, 143, 166),
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(width: 40),
-                                      Icon(
-                                        Icons.comment_rounded,
-                                        color:
-                                            Color.fromARGB(255, 122, 143, 166),
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        '12',
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 122, 143, 166),
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(width: 40),
-                                      Icon(
-                                        Icons.heart_broken,
-                                        color:
-                                            Color.fromARGB(255, 122, 143, 166),
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        '12',
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 122, 143, 166),
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                                    );
+                                  });
+                            },
                           ),
-                        );
-                      },
-                    ),
                   )
                 ],
               ),
