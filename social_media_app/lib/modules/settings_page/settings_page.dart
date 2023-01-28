@@ -1,21 +1,13 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:social_media_app/modules/login/login_screen.dart';
 import '../../models/user_model.dart';
-import '../../shared/constants.dart';
-
-Future signOut(context) async {
-  await FirebaseAuth.instance.signOut();
-  // ignore: use_build_context_synchronously
-  navigateAndFinish(context, LoginScreen());
-}
+import '../../shared/componant.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({
@@ -35,8 +27,6 @@ class _SettingsPageState extends State<SettingsPage> {
   File? imageFile;
   int counter = 0;
   var imagePath;
-
-  var userId = FirebaseAuth.instance.currentUser?.uid;
 
   //get counter
   getCounter() async {
@@ -65,7 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
         .collection('users')
         .where(
           'userId',
-          isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+          isEqualTo: currentUserId,
         )
         .snapshots();
 
@@ -95,9 +85,13 @@ class _SettingsPageState extends State<SettingsPage> {
             // }
             //username controller
 
-            usernameController.text = '${userModel?.userName}';
-            bioController.text = userModel!.bio;
-            emailController.text = userModel.email;
+            if (usernameController.text.isEmpty ||
+                bioController.text.isEmpty ||
+                emailController.text.isEmpty) {
+              usernameController.text = '${userModel?.userName}';
+              bioController.text = userModel!.bio;
+              emailController.text = userModel.email;
+            }
 
             //edit image
             Future<void> editImage(ImageSource source) async {
@@ -114,7 +108,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 //     FirebaseStorage.instance.ref('images').child(imageName);
                 // await ref.putFile(file);
                 // imageUrl = ref.getDownloadURL();
-
               } catch (e) {
                 if (kDebugMode) {
                   print(e.toString());
@@ -137,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 refShared.setInt('counter', counter + 1);
                 counter = refShared.getInt('counter')!;
 
-                if (userModel.personalImagePath.isNotEmpty) {
+                if (userModel!.personalImagePath.isNotEmpty) {
                   await FirebaseStorage.instance
                       .ref('images')
                       .child(userModel.personalImagePath)
@@ -154,11 +147,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 'bio': bioController.text,
                 'email': emailController.text,
                 'personalImage':
-                    (imageFile != null) ? imageUrl : userModel.personalImage,
+                    (imageFile != null) ? imageUrl : userModel!.personalImage,
                 'personalImagePath': imagePath ?? '',
               });
 
-              Navigator.pop;
+              Navigator.of(context).pop();
             }
 
             return SingleChildScrollView(
@@ -205,7 +198,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         )
                                       : CircleAvatar(
                                           backgroundImage: NetworkImage(
-                                              userModel.personalImage),
+                                              userModel!.personalImage),
                                           radius: 60,
                                         ),
                                 ),

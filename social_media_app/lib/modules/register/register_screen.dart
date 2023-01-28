@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:social_media_app/shared/componant.dart';
+import 'package:social_media_app/shared/constants.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback showLoginPage;
@@ -22,37 +24,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController ageController = TextEditingController();
 
   Future signUp() async {
-    if (passwordConfirmed()) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.deepPurple),
-            );
-          });
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim());
-
-      // ignore: use_build_context_synchronously
-      Navigator.pop(context);
-
-      await addUserDetails(
-        userNameController.text.trim(),
-        emailController.text.trim(),
-        int.parse(ageController.text.trim()),
-      );
-
-      //pop the loading circle
-
-    } else {
+    internetConection(context);
+    if (userNameController.text.isEmpty ||
+        ageController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
       showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
               backgroundColor: Colors.deepPurple[200],
               content: const Text(
-                'the password is not the same',
+                'you should complete your information!',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -60,6 +44,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             );
           });
+    } else {
+      if (passwordConfirmed()) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.deepPurple),
+              );
+            });
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim());
+
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context);
+
+        await addUserDetails(
+          userNameController.text.trim(),
+          emailController.text.trim(),
+          int.parse(ageController.text.trim()),
+        );
+
+        //pop the loading circle
+      } else {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: Colors.deepPurple[200],
+                content: const Text(
+                  'the password is not the same',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            });
+      }
     }
   }
 
@@ -76,13 +99,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // print(user NameArray); // Output: [m, mo, moh, moha, moham, mohame, mohamed]
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .doc(currentUserId)
         .set({
       'userName': userName,
       // 'lastName': lastName,
       'email': email,
       'age': age,
-      'userId': FirebaseAuth.instance.currentUser?.uid,
+      'userId': currentUserId,
       'bio': 'write you bio ...',
       // 'coverImage':
       //     'https://www.proactivechannel.com/Files/BrandImages/Default.jpg',

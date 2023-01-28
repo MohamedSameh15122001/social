@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:social_media_app/modules/settings_page/settings_page.dart';
 import 'package:social_media_app/shared/constants.dart';
 
+import '../../shared/componant.dart';
+
 class PersonalPage extends StatefulWidget {
   const PersonalPage({Key? key}) : super(key: key);
 
@@ -18,7 +20,7 @@ class _PersonalPageState extends State<PersonalPage> {
     myPosts = [];
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(currentUserId)
         .collection('posts')
         .get()
         .then((value) {
@@ -53,7 +55,7 @@ class _PersonalPageState extends State<PersonalPage> {
             .collection('users')
             .where(
               'userId',
-              isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+              isEqualTo: currentUserId,
             )
             .snapshots(),
         builder: (BuildContext context,

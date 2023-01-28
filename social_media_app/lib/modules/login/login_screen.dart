@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   Future signIn() async {
+    internetConection(context);
     try {
       //loading circle
       showDialog(

@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/models/user_model.dart';
+
+import '../../shared/componant.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -13,13 +14,20 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   var searchCont = TextEditingController();
   late var following;
+  bool isLoading = false;
   getFollowing() async {
+    setState(() {
+      isLoading = true;
+    });
     var ref = await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(currentUserId)
         .get()
         .then((value) async {
       following = await value.data()!['following'];
+    });
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -113,8 +121,7 @@ class _SearchState extends State<Search> {
                       itemBuilder: (context, index) {
                         // print(following);
                         // print('========================');
-                        return (FirebaseAuth.instance.currentUser!.uid ==
-                                data[index].data()['userId'])
+                        return (currentUserId == data[index].data()['userId'])
                             ? Container()
                             : Padding(
                                 padding: const EdgeInsets.only(
@@ -140,12 +147,14 @@ class _SearchState extends State<Search> {
                                       CircleAvatar(
                                         backgroundColor: Colors.deepPurple,
                                         radius: 34,
-                                        child: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                              data[index]
-                                                  .data()['personalImage']),
-                                          radius: 30,
-                                        ),
+                                        child: !isLoading
+                                            ? const CircularProgressIndicator()
+                                            : CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                    data[index].data()[
+                                                        'personalImage']),
+                                                radius: 30,
+                                              ),
                                       ),
                                       const SizedBox(
                                         width: 6,
@@ -183,8 +192,7 @@ class _SearchState extends State<Search> {
                                               data[index].data()['userId'])) {
                                             await FirebaseFirestore.instance
                                                 .collection('users')
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser!.uid)
+                                                .doc(currentUserId)
                                                 .update({
                                               'following':
                                                   FieldValue.arrayRemove([
@@ -197,16 +205,13 @@ class _SearchState extends State<Search> {
                                                     .data()['userId'])
                                                 .update({
                                               'followers':
-                                                  FieldValue.arrayRemove([
-                                                (FirebaseAuth
-                                                    .instance.currentUser!.uid)
-                                              ])
+                                                  FieldValue.arrayRemove(
+                                                      [(currentUserId)])
                                             });
                                           } else {
                                             await FirebaseFirestore.instance
                                                 .collection('users')
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser!.uid)
+                                                .doc(currentUserId)
                                                 .update({
                                               'following':
                                                   FieldValue.arrayUnion([
@@ -222,10 +227,8 @@ class _SearchState extends State<Search> {
                                                     .data()['userId'])
                                                 .update({
                                               'followers':
-                                                  FieldValue.arrayUnion([
-                                                (FirebaseAuth
-                                                    .instance.currentUser!.uid)
-                                              ])
+                                                  FieldValue.arrayUnion(
+                                                      [(currentUserId)])
                                               // [
                                               //   data[index].data()['userId']
                                               // ]

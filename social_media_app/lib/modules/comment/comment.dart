@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../../shared/componant.dart';
 
 class Comment extends StatefulWidget {
   final commentId;
@@ -23,6 +24,7 @@ class _CommentState extends State<Comment> {
   var commentCont = TextEditingController();
 
   List comments = [];
+  bool isLoading = true;
 
   getComments() async {
     comments = [];
@@ -35,16 +37,7 @@ class _CommentState extends State<Comment> {
         comments.add(value.data());
       });
     }
-    // print(widget.commentId.length);
-    // print('=======================');
-    // print(widget.commentDescription);
-    // print('=======================');
-    // print(widget.postId);
-    // print('=======================');
-    // print(widget.postUserId);
-    // print('=======================');
-    // print(comments);
-    // print('=======================');
+    isLoading = false;
     setState(() {});
   }
 
@@ -71,26 +64,46 @@ class _CommentState extends State<Comment> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            widget.commentDescription.isEmpty
+            isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: widget.commentDescription.length,
-                      itemBuilder: (context, index) {
-                        return Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                comments[index]['personalImage'],
+                : widget.commentDescription.isEmpty
+                    ? const Center(
+                        child: Text('No Comments'),
+                      )
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: widget.commentDescription.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10.0),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                      comments[index]['personalImage'],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.deepPurple,
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      padding: const EdgeInsets.all(10),
+                                      child: Text(
+                                        widget.commentDescription[index],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      )),
+                                ],
                               ),
-                            ),
-                            Text(widget.commentDescription[index]),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-            const Spacer(),
+                            );
+                          },
+                        ),
+                      ),
+            widget.commentDescription.isEmpty ? const Spacer() : Container(),
             Row(
               children: [
                 Expanded(
@@ -123,22 +136,51 @@ class _CommentState extends State<Comment> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      if (widget.commentId
-                          .contains(FirebaseAuth.instance.currentUser!.uid)) {
+                      if (widget.commentId.contains(currentUserId)) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                backgroundColor: Colors.deepPurple[200],
+                                content: const Text(
+                                  'you already commnened',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            });
                       } else {
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(widget.postUserId)
-                            .collection('posts')
-                            .doc(widget.postId)
-                            .update({
-                          'commentId': FieldValue.arrayUnion(
-                              [FirebaseAuth.instance.currentUser!.uid]),
-                          'commentDescription':
-                              FieldValue.arrayUnion([commentCont.text]),
-                        });
+                        if (commentCont.text.isEmpty) {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  backgroundColor: Colors.deepPurple[200],
+                                  content: const Text(
+                                    'please write your comment',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              });
+                        } else {
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(widget.postUserId)
+                              .collection('posts')
+                              .doc(widget.postId)
+                              .update({
+                            'commentId': FieldValue.arrayUnion([currentUserId]),
+                            'commentDescription':
+                                FieldValue.arrayUnion([commentCont.text]),
+                          });
+                        }
                       }
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
                       await getComments();
                     },
                     child: Container(
@@ -302,10 +344,7 @@ class _CommentState extends State<Comment> {
 //                                                                             .collection('posts')
 //                                                                             .doc(documentId[index])
 //                                                                             .update({
-//                                                                           'commentId': FirebaseAuth
-//                                                                               .instance
-//                                                                               .currentUser!
-//                                                                               .uid,
+//                                                                           'commentId': currentUserId,
 //                                                                           'commentDescription':
 //                                                                               commentCont.text,
 //                                                                         });
