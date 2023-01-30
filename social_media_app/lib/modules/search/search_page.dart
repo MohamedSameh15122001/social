@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/models/user_model.dart';
+import 'package:social_media_app/modules/personal_page/personal_page.dart';
+import 'package:social_media_app/shared/constants.dart';
 
 import '../../shared/componant.dart';
 
@@ -33,6 +35,7 @@ class _SearchState extends State<Search> {
 
   @override
   void initState() {
+    internetConection(context);
     getFollowing();
     super.initState();
   }
@@ -144,44 +147,62 @@ class _SearchState extends State<Search> {
                                   ),
                                   child: Row(
                                     children: [
-                                      CircleAvatar(
-                                        backgroundColor: Colors.deepPurple,
-                                        radius: 34,
-                                        child: !isLoading
-                                            ? const CircularProgressIndicator()
-                                            : CircleAvatar(
-                                                backgroundImage: NetworkImage(
-                                                    data[index].data()[
-                                                        'personalImage']),
-                                                radius: 30,
-                                              ),
-                                      ),
-                                      const SizedBox(
-                                        width: 6,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data[index].data()['userName'],
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.deepPurple,
+                                      GestureDetector(
+                                        onTap: () {
+                                          navigateTo(
+                                              context,
+                                              PersonalPage(
+                                                userId: data[index]
+                                                    .data()['userId'],
+                                              ));
+                                        },
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor:
+                                                  Colors.deepPurple,
+                                              radius: 34,
+                                              child: !isLoading
+                                                  ? const CircularProgressIndicator()
+                                                  : CircleAvatar(
+                                                      backgroundImage:
+                                                          NetworkImage(data[
+                                                                      index]
+                                                                  .data()[
+                                                              'personalImage']),
+                                                      radius: 30,
+                                                    ),
                                             ),
-                                          ),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          Text(
-                                            data[index].data()['bio'],
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
+                                            const SizedBox(
+                                              width: 6,
                                             ),
-                                          ),
-                                        ],
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data[index]
+                                                      .data()['userName'],
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.deepPurple,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 6,
+                                                ),
+                                                Text(
+                                                  data[index].data()['bio'],
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                       const Spacer(),
                                       //confirm edit

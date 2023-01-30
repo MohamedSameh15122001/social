@@ -35,6 +35,7 @@ dependencies:
   firebase_core:
   firebase_storage:
   firebase_core_platform_interface: 4.5.1
+  insta_image_viewer: ^1.0.2
   flutter:
     sdk: flutter
   flutter_bloc:

@@ -31,11 +31,7 @@ class MyApp extends StatelessWidget {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
-    // return BlocProvider(
-    //   create: (context) => MainCubit(),
-    //   child: BlocConsumer<MainCubit, MainStates>(
-    //     listener: (context, state) {},
-    //     builder: (context, state) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Social Media App',
@@ -44,9 +40,5 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
     );
-
-    //   },
-    // ),
-    // );
   }
 }

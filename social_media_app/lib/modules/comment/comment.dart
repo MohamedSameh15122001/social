@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:social_media_app/shared/constants.dart';
 
 import '../../shared/componant.dart';
 
@@ -43,6 +44,7 @@ class _CommentState extends State<Comment> {
 
   @override
   void initState() {
+    internetConection(context);
     getComments();
     super.initState();
   }

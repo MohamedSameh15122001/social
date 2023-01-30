@@ -127,6 +127,7 @@ class _PostState extends State<Post> {
 
   @override
   void initState() {
+    internetConection(context);
     getCounter();
     super.initState();
   }

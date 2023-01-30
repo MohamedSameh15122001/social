@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:social_media_app/models/user_model.dart';
 import 'package:social_media_app/modules/comment/comment.dart';
+import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/modules/search/search_page.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
@@ -72,11 +74,10 @@ class _HomePageState extends State<HomePage> {
         }
       }).catchError((e) {});
     }
-    if (allData.isNotEmpty) {
-      setState(() {
-        isLoading = false;
-      });
-    }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   getdata() => FirebaseFirestore.instance
@@ -199,42 +200,54 @@ class _HomePageState extends State<HomePage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      backgroundImage: NetworkImage(
-                                                          '${post!['personalImage']}'),
-                                                      radius: 24,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          '${post!['userName']}',
-                                                          style:
-                                                              const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14,
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    navigateTo(
+                                                        context,
+                                                        PersonalPage(
+                                                          userId:
+                                                              post['userId'],
+                                                        ));
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      CircleAvatar(
+                                                        backgroundImage:
+                                                            NetworkImage(
+                                                                '${post!['personalImage']}'),
+                                                        radius: 24,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            '${post!['userName']}',
+                                                            style:
+                                                                const TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 14,
+                                                            ),
                                                           ),
-                                                        ),
-                                                        Text(
-                                                          '12/12/2012',
-                                                          style: TextStyle(
-                                                            color: Colors
-                                                                .grey[600],
-                                                            fontSize: 9,
+                                                          Text(
+                                                            '12/12/2012',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontSize: 9,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const Spacer(),
-                                                    const Icon(
-                                                        Icons.list_rounded)
-                                                  ],
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      const Icon(
+                                                          Icons.list_rounded)
+                                                    ],
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 10),
                                                 Text(
@@ -244,8 +257,18 @@ class _HomePageState extends State<HomePage> {
                                                   borderRadius:
                                                       BorderRadius.circular(18),
                                                   child: post['postImage'] != ''
-                                                      ? Image.network(
-                                                          '${post['postImage']}')
+                                                      ? SizedBox(
+                                                          // height: 500,
+                                                          // width:
+                                                          //     double.infinity,
+                                                          child:
+                                                              InstaImageViewer(
+                                                            child: Image.network(
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                                '${post['postImage']}'),
+                                                          ),
+                                                        )
                                                       : Container(),
                                                 ),
                                                 const SizedBox(height: 20),

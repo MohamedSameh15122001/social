@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:social_media_app/shared/constants.dart';
 import '../../models/user_model.dart';
 import '../../shared/componant.dart';
 
@@ -38,6 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    internetConection(context);
     getCounter();
     super.initState();
   }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/shared/componant.dart';
+import 'package:social_media_app/shared/constants.dart';
 
 class MassageDetails extends StatefulWidget {
   final userId;
@@ -29,6 +30,7 @@ class _MassageDetailsState extends State<MassageDetails> {
 
   @override
   void initState() {
+    internetConection(context);
     getUserMassageData();
     super.initState();
   }

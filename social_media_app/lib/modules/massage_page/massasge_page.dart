@@ -51,6 +51,7 @@ class _MassagePageState extends State<MassagePage> {
 
   @override
   void initState() {
+    internetConection(context);
     getFollowingData();
     super.initState();
   }
