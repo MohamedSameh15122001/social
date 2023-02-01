@@ -17,9 +17,26 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
+  Map<String, dynamic>? newData = {};
+  getNewData() async {
+    newData = {};
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.postData['userId'])
+        .collection('posts')
+        .doc(widget.postDocumentId)
+        .get()
+        .then((value) {
+      newData = value.data();
+    });
+
+    setState(() {});
+  }
+
   @override
   void initState() {
     internetConection(context);
+    getNewData();
     super.initState();
   }
 
@@ -115,41 +132,77 @@ class _PostPageState extends State<PostPage> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        if (widget.postData['likes'].contains(currentUserId)) {
-                          await FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(widget.postData['userId'])
-                              .collection('posts')
-                              .doc(widget.postDocumentId)
-                              .update({
-                            'likes': FieldValue.arrayRemove([(currentUserId)])
-                          });
+                        if (newData != null) {
+                          if (newData!['likes'].contains(currentUserId)) {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(newData!['userId'])
+                                .collection('posts')
+                                .doc(widget.postDocumentId)
+                                .update({
+                              'likes': FieldValue.arrayRemove([(currentUserId)])
+                            });
+                          } else {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(newData!['userId'])
+                                .collection('posts')
+                                .doc(widget.postDocumentId)
+                                .update({
+                              'likes': FieldValue.arrayUnion([
+                                currentUserId,
+                              ]),
+                            });
+                          }
                         } else {
-                          await FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(widget.postData['userId'])
-                              .collection('posts')
-                              .doc(widget.postDocumentId)
-                              .update({
-                            'likes': FieldValue.arrayUnion([
-                              currentUserId,
-                            ]),
-                          });
+                          if (widget.postData['likes']
+                              .contains(currentUserId)) {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(widget.postData['userId'])
+                                .collection('posts')
+                                .doc(widget.postDocumentId)
+                                .update({
+                              'likes': FieldValue.arrayRemove([(currentUserId)])
+                            });
+                          } else {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(widget.postData['userId'])
+                                .collection('posts')
+                                .doc(widget.postDocumentId)
+                                .update({
+                              'likes': FieldValue.arrayUnion([
+                                currentUserId,
+                              ]),
+                            });
+                          }
                         }
 
+                        await getNewData();
                         // setState(() {});
                         // await getAllData();
                       },
-                      child: Icon(
-                        Icons.favorite,
-                        color: widget.postData['likes'].contains(currentUserId)
-                            ? Colors.red
-                            : const Color.fromARGB(255, 122, 143, 166),
-                      ),
+                      child: newData!.isNotEmpty
+                          ? Icon(
+                              Icons.favorite,
+                              color: newData!['likes'].contains(currentUserId)
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 122, 143, 166),
+                            )
+                          : Icon(
+                              Icons.favorite,
+                              color: widget.postData['likes']
+                                      .contains(currentUserId)
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 122, 143, 166),
+                            ),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${widget.postData['likes'].length}',
+                      newData!.isNotEmpty
+                          ? '${newData!['likes'].length}'
+                          : '${widget.postData['likes'].length}',
                       style: const TextStyle(
                           color: Color.fromARGB(255, 122, 143, 166),
                           fontWeight: FontWeight.bold),
@@ -177,7 +230,9 @@ class _PostPageState extends State<PostPage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${widget.postData['commentId'].length}',
+                      newData!.isNotEmpty
+                          ? '${newData!['commentId'].length}'
+                          : '${widget.postData['commentId'].length}',
                       style: const TextStyle(
                           color: Color.fromARGB(255, 122, 143, 166),
                           fontWeight: FontWeight.bold),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
 
@@ -42,22 +43,31 @@ class _MassageDetailsState extends State<MassageDetails> {
       appBar: AppBar(
         backgroundColor: Colors.grey[300],
         elevation: 0,
-        title: Row(
-          children: [
-            userMassageData.isEmpty
-                ? Container()
-                : CircleAvatar(
-                    backgroundImage:
-                        NetworkImage(userMassageData['personalImage']),
-                  ),
-            const SizedBox(width: 12),
-            Text(
+        title: InkWell(
+          onTap: () {
+            navigateTo(
+                context,
+                PersonalPage(
+                  userId: userMassageData['userId'],
+                ));
+          },
+          child: Row(
+            children: [
               userMassageData.isEmpty
-                  ? 'loading...'
-                  : userMassageData['userName'],
-              style: const TextStyle(color: Colors.black),
-            ),
-          ],
+                  ? Container()
+                  : CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(userMassageData['personalImage']),
+                    ),
+              const SizedBox(width: 12),
+              Text(
+                userMassageData.isEmpty
+                    ? 'loading...'
+                    : userMassageData['userName'],
+                style: const TextStyle(color: Colors.black),
+              ),
+            ],
+          ),
         ),
       ),
       body: StreamBuilder(

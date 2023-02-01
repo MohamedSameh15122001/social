@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:social_media_app/models/user_model.dart';
 import 'package:social_media_app/modules/comment/comment.dart';
+import 'package:social_media_app/modules/like/like.dart';
 import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/modules/search/search_page.dart';
 import 'package:social_media_app/shared/componant.dart';
@@ -381,6 +382,25 @@ class _HomePageState extends State<HomePage> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold),
+                                                      ),
+                                                      const Spacer(),
+                                                      InkWell(
+                                                        onTap: () {
+                                                          navigateTo(
+                                                              context,
+                                                              Like(
+                                                                likesId: post[
+                                                                    'likes'],
+                                                              ));
+                                                        },
+                                                        child: const Icon(
+                                                          Icons.details,
+                                                          color: Color.fromARGB(
+                                                              255,
+                                                              122,
+                                                              143,
+                                                              166),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),

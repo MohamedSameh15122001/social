@@ -23,6 +23,7 @@ class _SettingsPageState extends State<SettingsPage> {
   var usernameController = TextEditingController();
   var bioController = TextEditingController();
   var emailController = TextEditingController();
+  bool showGallaryOrCamera = false;
 
   dynamic imageUrl;
   File? imageFile;
@@ -180,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     child: SafeArea(
                       child: Stack(
-                        alignment: Alignment.center,
+                        // alignment: Alignment.center,
                         children: [
                           Padding(
                             padding:
@@ -271,12 +272,65 @@ class _SettingsPageState extends State<SettingsPage> {
                               ],
                             ),
                           ),
-                          Align(
-                            alignment: const Alignment(.2, -0.8),
-                            child: GestureDetector(
-                              onTap: () => editImage(ImageSource.gallery),
-                              child: const CircleAvatar(
-                                child: Icon(Icons.edit),
+                          Padding(
+                            padding: const EdgeInsets.all(30.0),
+                            child: Align(
+                              alignment: const Alignment(.3, 0),
+                              child: Column(
+                                children: [
+                                  Visibility(
+                                      visible: showGallaryOrCamera,
+                                      child: InkWell(
+                                        onTap: () {
+                                          editImage(ImageSource.gallery);
+                                        },
+                                        child: const CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor: Colors.indigo,
+                                          child: Icon(
+                                            size: 24,
+                                            Icons.photo,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )),
+                                  const SizedBox(
+                                    height: 8,
+                                  ),
+                                  Visibility(
+                                    visible: showGallaryOrCamera,
+                                    child: InkWell(
+                                      onTap: () {
+                                        editImage(ImageSource.camera);
+                                      },
+                                      child: const CircleAvatar(
+                                        radius: 24,
+                                        backgroundColor: Colors.indigo,
+                                        child: Icon(
+                                            size: 24,
+                                            Icons.camera_alt,
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 8,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showGallaryOrCamera =
+                                          !showGallaryOrCamera;
+                                      setState(() {});
+                                    },
+                                    child: const CircleAvatar(
+                                      backgroundColor: Colors.deepPurple,
+                                      child: Icon(
+                                        Icons.edit,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

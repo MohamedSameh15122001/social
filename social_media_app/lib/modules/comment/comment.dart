@@ -28,18 +28,49 @@ class _CommentState extends State<Comment> {
   bool isLoading = true;
 
   getComments() async {
+    isLoading = true;
+    await getNewData();
     comments = [];
-    for (var i = 0; i < widget.commentId.length; i++) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.commentId[i])
-          .get()
-          .then((value) {
-        comments.add(value.data());
-      });
+    if (newData != null) {
+      for (var i = 0; i < newData!['commentId'].length; i++) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(newData!['commentId'][i])
+            .get()
+            .then((value) {
+          comments.add(value.data());
+        });
+      }
+    } else {
+      for (var i = 0; i < widget.commentId.length; i++) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.commentId[i])
+            .get()
+            .then((value) {
+          comments.add(value.data());
+        });
+      }
     }
+    commentCont.text = '';
     isLoading = false;
     setState(() {});
+  }
+
+  Map<String, dynamic>? newData = {};
+  getNewData() async {
+    newData = {};
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.postUserId)
+        .collection('posts')
+        .doc(widget.postId)
+        .get()
+        .then((value) {
+      newData = value.data();
+    });
+    setState(() {});
+    print(newData);
   }
 
   @override
@@ -68,13 +99,17 @@ class _CommentState extends State<Comment> {
           children: [
             isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : widget.commentDescription.isEmpty
+                : (newData == null
+                        ? widget.commentDescription.isEmpty
+                        : newData?['commentDescription'] == null)
                     ? const Center(
                         child: Text('No Comments'),
                       )
                     : Expanded(
                         child: ListView.builder(
-                          itemCount: widget.commentDescription.length,
+                          itemCount: newData != null
+                              ? newData!['commentDescription'].length
+                              : widget.commentDescription.length,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding:
@@ -94,7 +129,10 @@ class _CommentState extends State<Comment> {
                                       ),
                                       padding: const EdgeInsets.all(10),
                                       child: Text(
-                                        widget.commentDescription[index],
+                                        newData != null
+                                            ? newData!['commentDescription']
+                                                [index]
+                                            : widget.commentDescription[index],
                                         style: const TextStyle(
                                           color: Colors.white,
                                         ),
@@ -138,7 +176,9 @@ class _CommentState extends State<Comment> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      if (widget.commentId.contains(currentUserId)) {
+                      if (newData != null
+                          ? newData!['commentId'].contains(currentUserId)
+                          : widget.commentId.contains(currentUserId)) {
                         showDialog(
                             context: context,
                             builder: (context) {
