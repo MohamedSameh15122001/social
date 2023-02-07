@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:social_media_app/shared/componant.dart';
@@ -92,6 +93,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String email,
     int age,
   ) async {
+    var token = await FirebaseMessaging.instance.getToken();
+
     List<String> userNameArray = [];
     for (int i = 0; i < userName.length; i++) {
       userNameArray.add(userName.substring(0, i + 1).toLowerCase());
@@ -116,6 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'userNameArray': userNameArray,
       'followers': [],
       'following': [],
+      'tokenNotification': token,
       // 'posts': [],
     });
   }

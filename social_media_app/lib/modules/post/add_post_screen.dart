@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:social_media_app/modules/layout/layout.dart';
 import 'package:social_media_app/shared/constants.dart';
+import 'package:video_viewer/video_viewer.dart';
 
 import '../../shared/componant.dart';
 
@@ -20,8 +21,12 @@ class Post extends StatefulWidget {
 
 class _PostState extends State<Post> {
   var emailController = TextEditingController();
-
+  VideoPlayerController? _controller;
+  VideoViewerController videoViewerController = VideoViewerController();
   dynamic imageUrl;
+
+  bool showGallaryOrCamera = false;
+  bool showGallaryOrVideo = false;
 
   File? imageFile;
 
@@ -31,11 +36,31 @@ class _PostState extends State<Post> {
 
   var imagePath;
 
+  Future<void> editVideo(ImageSource source) async {
+    try {
+      var pickedImage = await ImagePicker().pickVideo(source: source);
+
+      imageFile = File(pickedImage!.path);
+
+      _controller = VideoPlayerController.file(imageFile!)
+        ..initialize().then((_) {
+          setState(() {});
+        });
+
+      setState(() {});
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
+  }
+
   Future<void> editImage(ImageSource source) async {
     try {
       var pickedImage = await ImagePicker().pickImage(source: source);
 
       imageFile = File(pickedImage!.path);
+      _controller = null;
       setState(() {});
 
       // imageFile = pickedImage;
@@ -108,6 +133,7 @@ class _PostState extends State<Post> {
           'postImage': (imageFile != null) ? imageUrl : '',
           'postDate': DateTime.now(),
           'postImagePath': imagePath ?? '',
+          'tokenNotification': value.data()!['tokenNotification'],
         });
       });
 
@@ -266,19 +292,72 @@ class _PostState extends State<Post> {
                         hintText: 'write your post',
                       ),
                       cursorColor: Colors.deepPurple,
-                    ), //image
-                    const SizedBox(height: 30),
-                    (imageFile != null)
+                    ),
+
+                    _controller != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(30),
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * .9,
-                              height: MediaQuery.of(context).size.height * .4,
-                              child: Image(
-                                  fit: BoxFit.fill,
-                                  image: FileImage(imageFile!)),
+                            child: Center(
+                              child: _controller!.value.isInitialized
+                                  ? AspectRatio(
+                                      aspectRatio:
+                                          _controller!.value.aspectRatio,
+                                      child: VideoPlayer(_controller!),
+                                    )
+                                  : Container(),
                             ),
                           )
+                        // ClipRRect(
+                        //     borderRadius: BorderRadius.circular(30),
+                        //     child: VideoViewer(
+                        //         style: VideoViewerStyle(
+                        //             loading: const CircularProgressIndicator(
+                        //           color: Colors.deepPurple,
+                        //         )),
+                        //         controller: videoViewerController,
+                        //         source: {
+                        //           "SubRip Text": VideoSource(
+                        //             video: _controller!,
+                        //             // subtitle: {
+                        //             //   "English": VideoViewerSubtitle.network(
+                        //             //     "https://felipemurguia.com/assets/txt/WEBVTT_English.txt",
+                        //             //     type: SubtitleType.webvtt,
+                        //             //   ),
+                        //             // },
+                        //           )
+                        //         }),
+                        //   )
+                        : Container(),
+
+                    _controller != null
+                        ? IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _controller!.value.isPlaying
+                                    ? _controller!.pause()
+                                    : _controller!.play();
+                              });
+                            },
+                            icon: Icon(_controller!.value.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow))
+                        : Container(),
+                    //image
+                    const SizedBox(height: 30),
+                    _controller == null
+                        ? (imageFile != null)
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * .9,
+                                  height:
+                                      MediaQuery.of(context).size.height * .4,
+                                  child: Image(
+                                      fit: BoxFit.fill,
+                                      image: FileImage(imageFile!)),
+                                ),
+                              )
+                            : Container()
                         : Container()
                     // ClipRRect(
                     //     borderRadius: BorderRadius.circular(30),
@@ -305,10 +384,110 @@ class _PostState extends State<Post> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => editImage(ImageSource.gallery),
-        backgroundColor: Colors.deepPurple,
-        child: const Icon(Icons.image),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Visibility(
+                  visible: showGallaryOrVideo,
+                  child: InkWell(
+                    onTap: () {
+                      editVideo(ImageSource.gallery);
+                    },
+                    child: const CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.indigo,
+                      child: Icon(
+                        size: 24,
+                        Icons.photo,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                width: 8,
+              ),
+              Visibility(
+                visible: showGallaryOrVideo,
+                child: InkWell(
+                  onTap: () {
+                    editVideo(ImageSource.camera);
+                  },
+                  child: const CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.indigo,
+                    child:
+                        Icon(size: 24, Icons.camera_alt, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 8,
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  showGallaryOrVideo = !showGallaryOrVideo;
+                  setState(() {});
+                },
+                backgroundColor: Colors.deepPurple,
+                child: const Icon(Icons.video_call),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Visibility(
+                  visible: showGallaryOrCamera,
+                  child: InkWell(
+                    onTap: () {
+                      editImage(ImageSource.gallery);
+                    },
+                    child: const CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.indigo,
+                      child: Icon(
+                        size: 24,
+                        Icons.photo,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                width: 8,
+              ),
+              Visibility(
+                visible: showGallaryOrCamera,
+                child: InkWell(
+                  onTap: () {
+                    editImage(ImageSource.camera);
+                  },
+                  child: const CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.indigo,
+                    child:
+                        Icon(size: 24, Icons.camera_alt, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 8,
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  showGallaryOrCamera = !showGallaryOrCamera;
+                  setState(() {});
+                },
+                backgroundColor: Colors.deepPurple,
+                child: const Icon(Icons.image),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

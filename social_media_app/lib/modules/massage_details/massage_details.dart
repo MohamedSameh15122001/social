@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
@@ -14,6 +15,7 @@ class MassageDetails extends StatefulWidget {
 
 class _MassageDetailsState extends State<MassageDetails> {
   var massageCont = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   Map userMassageData = {};
   getUserMassageData() async {
     userMassageData = {};
@@ -26,6 +28,7 @@ class _MassageDetailsState extends State<MassageDetails> {
       // print(value.data());
     });
     // print(userMassageData);
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     setState(() {});
   }
 
@@ -98,9 +101,14 @@ class _MassageDetailsState extends State<MassageDetails> {
                       child: datadata.isEmpty
                           ? Text('Say hello to ${userMassageData['userName']}')
                           : ListView.builder(
+                              controller: _scrollController,
                               physics: const BouncingScrollPhysics(),
                               itemCount: datadata.length,
                               itemBuilder: (context, index) {
+                                DateTime firstDate =
+                                    datadata[index]['dateTime'].toDate();
+                                var format =
+                                    DateFormat.yMMMMd().format(firstDate);
                                 if (datadata[index]['senderId'] ==
                                     currentUserId) {
                                   return Padding(
@@ -108,19 +116,34 @@ class _MassageDetailsState extends State<MassageDetails> {
                                         vertical: 10.0),
                                     child: Align(
                                       alignment: AlignmentDirectional.centerEnd,
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.deepPurple,
-                                            borderRadius:
-                                                BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.all(10),
-                                          child: Text(
-                                            datadata[index]['text'],
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.deepPurple,
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                              ),
+                                              padding: const EdgeInsets.all(10),
+                                              child: Text(
+                                                datadata[index]['text'],
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              )),
+                                          Text(
+                                            format,
                                             style: const TextStyle(
-                                              color: Colors.white,
+                                              color: Color.fromARGB(
+                                                  255, 122, 143, 166),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 8,
                                             ),
-                                          )),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 } else {
@@ -130,19 +153,35 @@ class _MassageDetailsState extends State<MassageDetails> {
                                     child: Align(
                                       alignment:
                                           AlignmentDirectional.centerStart,
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.deepPurple,
-                                            borderRadius:
-                                                BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.all(10),
-                                          child: Text(
-                                            datadata[index]['text'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.deepPurple,
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
                                             ),
-                                          )),
+                                            padding: const EdgeInsets.all(10),
+                                            child: Text(
+                                              datadata[index]['text'],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            format,
+                                            style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 122, 143, 166),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 }
@@ -182,30 +221,54 @@ class _MassageDetailsState extends State<MassageDetails> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUserId)
-                                  .collection('chats')
-                                  .doc(widget.userId)
-                                  .collection('massages')
-                                  .add({
-                                'dateTime': DateTime.now(),
-                                'receiverId': widget.userId,
-                                'senderId': currentUserId,
-                                'text': massageCont.text,
-                              });
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(widget.userId)
-                                  .collection('chats')
-                                  .doc(currentUserId)
-                                  .collection('massages')
-                                  .add({
-                                'dateTime': DateTime.now(),
-                                'receiverId': widget.userId,
-                                'senderId': currentUserId,
-                                'text': massageCont.text,
-                              });
+                              if (massageCont.text == '') {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        backgroundColor: Colors.deepPurple[200],
+                                        content: const Text(
+                                          'your massage is empty!',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              } else {
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(currentUserId)
+                                    .collection('chats')
+                                    .doc(widget.userId)
+                                    .collection('massages')
+                                    .add({
+                                  'dateTime': DateTime.now(),
+                                  'receiverId': widget.userId,
+                                  'senderId': currentUserId,
+                                  'text': massageCont.text,
+                                });
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(widget.userId)
+                                    .collection('chats')
+                                    .doc(currentUserId)
+                                    .collection('massages')
+                                    .add({
+                                  'dateTime': DateTime.now(),
+                                  'receiverId': widget.userId,
+                                  'senderId': currentUserId,
+                                  'text': massageCont.text,
+                                });
+                                massageCont.clear();
+                                // ignore: use_build_context_synchronously
+                                FocusScope.of(context).unfocus();
+                                setState(() {
+                                  _scrollController.jumpTo(_scrollController
+                                      .position.maxScrollExtent);
+                                });
+                              }
                             },
                             child: Container(
                               height: 64,

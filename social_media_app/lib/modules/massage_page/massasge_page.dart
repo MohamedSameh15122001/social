@@ -13,7 +13,21 @@ class MassagePage extends StatefulWidget {
 }
 
 class _MassagePageState extends State<MassagePage> {
-  late List following;
+  List chats = [];
+  Future getChats() async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('chats')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        chats.add(element.id);
+      }
+    });
+  }
+
+  List following = [];
 
   getFollowing() async {
     var ref = await FirebaseFirestore.instance
@@ -23,6 +37,11 @@ class _MassagePageState extends State<MassagePage> {
         .then((value) async {
       following = await value.data()!['following'];
     });
+    // for (var element in chats) {
+    //   if (!following.contains(element)) {
+    //     following.add(element);
+    //   }
+    // }
   }
 
   List followingData = [];
@@ -32,6 +51,7 @@ class _MassagePageState extends State<MassagePage> {
     setState(() {
       isLoading = true;
     });
+
     await getFollowing();
     followingData = [];
     for (var i = 0; i < following.length; i++) {
@@ -52,6 +72,7 @@ class _MassagePageState extends State<MassagePage> {
   @override
   void initState() {
     internetConection(context);
+
     getFollowingData();
     super.initState();
   }

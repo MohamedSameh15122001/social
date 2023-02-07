@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:social_media_app/home_page.dart';
+import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/shared/constants.dart';
 
 import '../../shared/componant.dart';
@@ -9,13 +11,15 @@ class Comment extends StatefulWidget {
   final postUserId;
   final commentDescription;
   final postId;
-  const Comment(
-      {Key? key,
-      this.commentId,
-      this.commentDescription,
-      this.postUserId,
-      this.postId})
-      : super(key: key);
+  final post;
+  const Comment({
+    Key? key,
+    this.commentId,
+    this.commentDescription,
+    this.postUserId,
+    this.postId,
+    required this.post,
+  }) : super(key: key);
 
   @override
   State<Comment> createState() => _CommentState();
@@ -116,9 +120,18 @@ class _CommentState extends State<Comment> {
                                   const EdgeInsets.symmetric(vertical: 10.0),
                               child: Row(
                                 children: [
-                                  CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                      comments[index]['personalImage'],
+                                  GestureDetector(
+                                    onTap: () {
+                                      navigateTo(
+                                          context,
+                                          PersonalPage(
+                                            userId: comments[index]['userId'],
+                                          ));
+                                    },
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        comments[index]['personalImage'],
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -220,6 +233,30 @@ class _CommentState extends State<Comment> {
                             'commentDescription':
                                 FieldValue.arrayUnion([commentCont.text]),
                           });
+
+                          //notification
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(widget.post['userId'])
+                              .collection('notifications')
+                              .add({
+                            'title': widget.post['userName'],
+                            'body': 'react in your post',
+                            'notificationDate': DateTime.now(),
+                            'personalImage': widget.post['personalImage'],
+                            'postId': widget.postId,
+                            'userId': widget.post['userId'],
+                            'userName': widget.post['userName'],
+                          });
+
+                          await sendNotify(
+                            title: widget.post['userName'],
+                            body: 'react in your post',
+                            postId: widget.postId,
+                            postData: widget.post,
+                            userId: widget.post['userId'],
+                            token: widget.post['tokenNotification'],
+                          );
                         }
                       }
                       // Navigator.pop(context);

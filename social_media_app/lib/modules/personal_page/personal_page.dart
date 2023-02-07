@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:social_media_app/home_page.dart';
 import 'package:social_media_app/modules/post/post_page.dart';
 import 'package:social_media_app/modules/settings_page/settings_page.dart';
 import 'package:social_media_app/shared/constants.dart';
+import 'package:video_viewer/video_viewer.dart';
 
 import '../../shared/componant.dart';
 
@@ -17,6 +19,8 @@ class PersonalPage extends StatefulWidget {
 }
 
 class _PersonalPageState extends State<PersonalPage> {
+  VideoViewerController videoViewerController = VideoViewerController();
+  VideoPlayerController? _controller;
   List myPosts = [];
   List documentId = [];
   getMyPosts() async {
@@ -256,76 +260,120 @@ class _PersonalPageState extends State<PersonalPage> {
                                   textAlign: TextAlign.center,
                                 ),
                                 widget.userId != null
-                                    ? GestureDetector(
-                                        onTap: () async {
-                                          getMyFollowing();
-                                          if (myFollowing
-                                              .contains(widget.userId)) {
-                                            await FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(currentUserId)
-                                                .update({
-                                              'following':
-                                                  FieldValue.arrayRemove(
-                                                      ["${widget.userId}"])
-                                            });
-                                            await FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(widget.userId)
-                                                .update({
-                                              'followers':
-                                                  FieldValue.arrayRemove(
-                                                      [(currentUserId)])
-                                            });
-                                          } else {
-                                            await FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(currentUserId)
-                                                .update({
-                                              'following':
-                                                  FieldValue.arrayUnion(
-                                                      ["${widget.userId}"])
-                                              // [
-                                              //   data[index].data()['userId']
-                                              // ]
-                                            });
-                                            await FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(widget.userId)
-                                                .update({
-                                              'followers':
-                                                  FieldValue.arrayUnion(
-                                                      [(currentUserId)])
-                                              // [
-                                              //   data[index].data()['userId']
-                                              // ]
-                                            });
-                                          }
+                                    ? widget.userId != currentUserId
+                                        ? GestureDetector(
+                                            onTap: () async {
+                                              getMyFollowing();
+                                              if (myFollowing
+                                                  .contains(widget.userId)) {
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(currentUserId)
+                                                    .update({
+                                                  'following':
+                                                      FieldValue.arrayRemove(
+                                                          ["${widget.userId}"])
+                                                });
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(widget.userId)
+                                                    .update({
+                                                  'followers':
+                                                      FieldValue.arrayRemove(
+                                                          [(currentUserId)])
+                                                });
+                                              } else {
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(currentUserId)
+                                                    .update({
+                                                  'following':
+                                                      FieldValue.arrayUnion(
+                                                          ["${widget.userId}"])
+                                                  // [
+                                                  //   data[index].data()['userId']
+                                                  // ]
+                                                });
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(widget.userId)
+                                                    .update({
+                                                  'followers':
+                                                      FieldValue.arrayUnion(
+                                                          [(currentUserId)])
+                                                  // [
+                                                  //   data[index].data()['userId']
+                                                  // ]
+                                                });
+                                                //notification
+                                                FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(widget.userId)
+                                                    .get()
+                                                    .then((value) async {
+                                                  //notification
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('users')
+                                                      .doc(widget.userId)
+                                                      .collection(
+                                                          'notifications')
+                                                      .add({
+                                                    'title': value
+                                                        .data()!['userName'],
+                                                    'body':
+                                                        'start following you',
+                                                    'notificationDate':
+                                                        DateTime.now(),
+                                                    'personalImage':
+                                                        value.data()![
+                                                            'personalImage'],
+                                                    'postId': '',
+                                                    'userId':
+                                                        value.data()!['userId'],
+                                                    'userName': value
+                                                        .data()!['userName']
+                                                  });
 
-                                          setState(() {});
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: Colors.deepPurple,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              myFollowing
-                                                      .contains(widget.userId)
-                                                  ? 'Following'
-                                                  : 'follow',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 12,
+                                                  await sendNotify(
+                                                    title: value
+                                                        .data()!['userName'],
+                                                    body: 'start follow you',
+                                                    postId: '',
+                                                    postData: '',
+                                                    userId:
+                                                        value.data()!['userId'],
+                                                    token: value.data()![
+                                                        'tokenNotification'],
+                                                  );
+                                                });
+                                              }
+
+                                              setState(() {});
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: Colors.deepPurple,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  myFollowing.contains(
+                                                          widget.userId)
+                                                      ? 'Following'
+                                                      : 'follow',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      )
+                                          )
+                                        : Container()
                                     : Container(),
 
                                 Row(
@@ -447,6 +495,11 @@ class _PersonalPageState extends State<PersonalPage> {
                                       crossAxisCount: 3,
                                     ),
                                     itemBuilder: (context, index) {
+                                      // _controller = VideoPlayerController
+                                      //     .network(myPosts[index]['postImage'])
+                                      //   ..initialize().then((_) {
+                                      //     setState(() {});
+                                      //   });
                                       // print(datadata?.data()['posts'][0]['postImage']);
                                       // print(index.toString());
                                       // print('===================================');
@@ -460,17 +513,50 @@ class _PersonalPageState extends State<PersonalPage> {
                                                     documentId[index],
                                               ));
                                         },
-                                        child: Padding(
+                                        child:
+                                            //  myPosts[index]['postImagePath']
+                                            //         .endsWith('.mp4')
+                                            //     ? ClipRRect(
+                                            //         borderRadius:
+                                            //             BorderRadius.circular(30),
+                                            //         child: Center(
+                                            //           child: _controller!
+                                            //                   .value.isInitialized
+                                            //               ? AspectRatio(
+                                            //                   aspectRatio:
+                                            //                       _controller!.value
+                                            //                           .aspectRatio,
+                                            //                   child: VideoPlayer(
+                                            //                       _controller!),
+                                            //                 )
+                                            //               : Container(),
+                                            //         ),
+                                            //       )
+                                            // :
+                                            Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                             child: myPosts[index]
-                                                        ['postImage'] ==
-                                                    ''
+                                                            ['postImage'] ==
+                                                        '' ||
+                                                    myPosts[index]
+                                                            ['postImagePath']
+                                                        .endsWith('.mp4')
                                                 ? Center(
-                                                    child: Text(myPosts[index]
-                                                        ['postDescription']))
+                                                    child: Text(
+                                                    myPosts[index][
+                                                                'postDescription'] ==
+                                                            ''
+                                                        ? 'No Description or image'
+                                                        : myPosts[index]
+                                                            ['postDescription'],
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                    ),
+                                                  ))
                                                 : Image.network(
                                                     '${myPosts[index]['postImage']}',
                                                     fit: BoxFit.cover,
@@ -658,6 +744,64 @@ class _PersonalPageState extends State<PersonalPage> {
                                                               //   data[index].data()['userId']
                                                               // ]
                                                             });
+                                                            //notification
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'users')
+                                                                .doc(allFollowersData[
+                                                                        index]
+                                                                    ['userId'])
+                                                                .collection(
+                                                                    'notifications')
+                                                                .add({
+                                                              'title':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userName'],
+                                                              'body':
+                                                                  'start following you',
+                                                              'notificationDate':
+                                                                  DateTime
+                                                                      .now(),
+                                                              'personalImage':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'personalImage'],
+                                                              'postId': '',
+                                                              'userId':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userId'],
+                                                              'userName':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userName']
+                                                            });
+
+                                                            await sendNotify(
+                                                              title:
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userName'],
+                                                              body:
+                                                                  'start follow you',
+                                                              postId: '',
+                                                              postData: '',
+                                                              userId:
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userId'],
+                                                              token: allFollowersData[
+                                                                      index][
+                                                                  'tokenNotification'],
+                                                            );
                                                           }
 
                                                           setState(() {});
@@ -683,7 +827,12 @@ class _PersonalPageState extends State<PersonalPage> {
                                                                           [
                                                                           'userId'])
                                                                   ? 'Following'
-                                                                  : 'follow',
+                                                                  : !myFollowers.contains(
+                                                                          allFollowersData[index]
+                                                                              [
+                                                                              'userId'])
+                                                                      ? 'follow'
+                                                                      : 'follow back',
                                                               style:
                                                                   const TextStyle(
                                                                 color: Colors
@@ -880,6 +1029,64 @@ class _PersonalPageState extends State<PersonalPage> {
                                                               //   data[index].data()['userId']
                                                               // ]
                                                             });
+
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'users')
+                                                                .doc(allFollowersData[
+                                                                        index]
+                                                                    ['userId'])
+                                                                .collection(
+                                                                    'notifications')
+                                                                .add({
+                                                              'title':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userName'],
+                                                              'body':
+                                                                  'start following you',
+                                                              'notificationDate':
+                                                                  DateTime
+                                                                      .now(),
+                                                              'personalImage':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'personalImage'],
+                                                              'postId': '',
+                                                              'userId':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userId'],
+                                                              'userName':
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userName']
+                                                            });
+
+                                                            await sendNotify(
+                                                              title:
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userName'],
+                                                              body:
+                                                                  'start follow you',
+                                                              postId: '',
+                                                              postData: '',
+                                                              userId:
+                                                                  allFollowersData[
+                                                                          index]
+                                                                      [
+                                                                      'userId'],
+                                                              token: allFollowersData[
+                                                                      index][
+                                                                  'tokenNotification'],
+                                                            );
                                                           }
 
                                                           setState(() {});
@@ -938,3 +1145,35 @@ class _PersonalPageState extends State<PersonalPage> {
     );
   }
 }
+
+
+// Padding(
+                                            //     padding:
+                                            //         const EdgeInsets.all(8.0),
+                                            //     child: SizedBox(
+                                            //       height: 30,
+                                            //       child: ClipRRect(
+                                            //         borderRadius:
+                                            //             BorderRadius.circular(
+                                            //                 10),
+                                            //         child: VideoViewer(
+                                            //             style: VideoViewerStyle(
+                                            //                 loading:
+                                            //                     const CircularProgressIndicator(
+                                            //               color:
+                                            //                   Colors.deepPurple,
+                                            //             )),
+                                            //             controller:
+                                            //                 videoViewerController,
+                                            //             source: {
+                                            //               "SubRip Text":
+                                            //                   VideoSource(
+                                            //                 video: VideoPlayerController
+                                            //                     .network(myPosts[
+                                            //                             index][
+                                            //                         'postImage']),
+                                            //               )
+                                            //             }),
+                                            //       ),
+                                            //     ),
+                                            //   )

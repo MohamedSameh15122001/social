@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:social_media_app/modules/personal_page/personal_page.dart';
+import 'package:social_media_app/shared/constants.dart';
 
 class Like extends StatefulWidget {
   var likesId;
@@ -76,33 +78,45 @@ class _LikeState extends State<Like> {
                   child: ListView.builder(
                     itemCount: widget.likesId.length,
                     itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.deepPurple[200],
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                usersDataLikes[index]['personalImage'],
-                              ),
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            navigateTo(
+                                context,
+                                PersonalPage(
+                                  userId: usersDataLikes[index]['userId'],
+                                ));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple[200],
+                              borderRadius: BorderRadius.circular(30),
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              usersDataLikes[index]['userName'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    usersDataLikes[index]['personalImage'],
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  usersDataLikes[index]['userName'],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Spacer(),
+                                const Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                )
+                              ],
                             ),
-                            const Spacer(),
-                            const Icon(
-                              Icons.favorite,
-                              color: Colors.red,
-                            )
-                          ],
+                          ),
                         ),
                       );
                     },

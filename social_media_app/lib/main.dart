@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:social_media_app/modules/splash_screen/splash_screen.dart';
@@ -9,6 +10,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await CacheHelper.init();
+  //works when the app in background or terminated(fully closed)
+  FirebaseMessaging.onBackgroundMessage((message) async {});
 
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
@@ -37,6 +40,9 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Social Media App',
       theme: ThemeData(
         scaffoldBackgroundColor: mainColor[200],
+      ),
+      darkTheme: ThemeData(
+        scaffoldBackgroundColor: Colors.black,
       ),
       home: const SplashScreen(),
     );

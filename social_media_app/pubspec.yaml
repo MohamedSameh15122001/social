@@ -27,24 +27,30 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  bloc:
-  cloud_firestore:
-  cupertino_icons:
-  curved_navigation_bar:
-  firebase_auth:
-  firebase_core:
-  firebase_storage:
-  firebase_core_platform_interface: 4.5.1
-  insta_image_viewer: ^1.0.2
+  bloc: null
+  cloud_firestore: ^4.1.0
+  cupertino_icons: null
+  curved_navigation_bar: null
+  file_picker: ^5.2.5
+  firebase_auth: ^4.1.5
+  firebase_core: ^2.3.0
+  firebase_core_platform_interface: 4.5.2
+  firebase_messaging: ^14.2.1
+  firebase_storage: ^11.0.6
   flutter:
     sdk: flutter
-  flutter_bloc:
-  google_fonts:
-  image_picker:
-  shared_preferences:
-  smooth_page_indicator:
-  splash_screen_view:
-  top_snackbar_flutter:
+  flutter_bloc: null
+  google_fonts: ^4.0.3
+  http: ^0.13.5
+  image_picker: ^0.8.6
+  insta_image_viewer: ^1.0.2
+  intl: ^0.18.0
+  shared_preferences: null
+  smooth_page_indicator: null
+  splash_screen_view: null
+  top_snackbar_flutter: null
+  video_player: ^2.5.1
+  video_viewer: ^1.2.7
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0

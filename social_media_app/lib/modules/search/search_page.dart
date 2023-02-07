@@ -59,6 +59,7 @@ class _SearchState extends State<Search> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.deepPurple[200],
       body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
         future: FirebaseFirestore.instance
             .collection('users')
