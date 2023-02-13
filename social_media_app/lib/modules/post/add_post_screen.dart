@@ -430,6 +430,7 @@ class _PostState extends State<Post> {
               FloatingActionButton(
                 onPressed: () {
                   showGallaryOrVideo = !showGallaryOrVideo;
+                  showGallaryOrCamera = false;
                   setState(() {});
                 },
                 backgroundColor: Colors.deepPurple,
@@ -480,6 +481,7 @@ class _PostState extends State<Post> {
               FloatingActionButton(
                 onPressed: () {
                   showGallaryOrCamera = !showGallaryOrCamera;
+                  showGallaryOrVideo = false;
                   setState(() {});
                 },
                 backgroundColor: Colors.deepPurple,

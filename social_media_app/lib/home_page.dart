@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
         navigateTo(
           context,
           PostPage(
-            postData: value.data['postData'] as Map<String, dynamic>,
+            postData: value.data['postData'],
             postDocumentId: value.data['postId'],
           ),
         );
@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
         navigateTo(
           context,
           PostPage(
-            postData: value.data['postData'] as Map<String, dynamic>,
+            postData: value.data['postData'],
             postDocumentId: value.data['postId'],
           ),
         );
@@ -180,11 +180,13 @@ class _HomePageState extends State<HomePage> {
     });
     //to get the notification when app in forground (in use)
     FirebaseMessaging.onMessage.listen((event) {
-      // navigateTo(
-      //     context,
-      //     PersonalPage(
-      //       userId: event.data['userId'],
-      //     ));
+      navigateTo(
+        context,
+        PostPage(
+          postDocumentId: event.data['postId'],
+          postData: event.data['postData'],
+        ),
+      );
       // print('[]]]]]]]]]]]]]]]]]]]]');
       showDialog(
           context: context,
@@ -224,7 +226,7 @@ class _HomePageState extends State<HomePage> {
             }
 
             return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics:  const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   stories(),
@@ -240,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.deepPurple[300],
                           ))
                         : (allData.isEmpty)
-                            ? const Center(child: Text('NO POSTS!'))
+                            ?  const Center(child: Text('NO POSTS!'))
                             : ListView.builder(
                                 physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
@@ -412,26 +414,29 @@ class _HomePageState extends State<HomePage> {
                                                                 .collection(
                                                                     'notifications')
                                                                 .add({
-                                                              'title': post[
+                                                              'title': datadata![
                                                                   'userName'],
                                                               'body':
                                                                   'react in your post',
                                                               'notificationDate':
                                                                   DateTime
                                                                       .now(),
-                                                              'personalImage': post[
-                                                                  'personalImage'],
+                                                              'personalImage':
+                                                                  datadata[
+                                                                      'personalImage'],
                                                               'postId': documentId[
                                                                       userFollowingIndex]
                                                                   [postIndex],
-                                                              'userId': post[
-                                                                  'userId'],
-                                                              'userName': post[
-                                                                  'userName'],
+                                                              'userId':
+                                                                  datadata[
+                                                                      'userId'],
+                                                              'userName':
+                                                                  datadata[
+                                                                      'userName'],
                                                             });
 
                                                             await sendNotify(
-                                                              title: post[
+                                                              title: datadata[
                                                                   'userName'],
                                                               body:
                                                                   'react in your post',
@@ -439,7 +444,7 @@ class _HomePageState extends State<HomePage> {
                                                                       userFollowingIndex]
                                                                   [postIndex],
                                                               postData: post,
-                                                              userId: post[
+                                                              userId: datadata[
                                                                   'userId'],
                                                               token: post[
                                                                   'tokenNotification'],
@@ -677,7 +682,7 @@ sendNotify({
   required String title,
   required String body,
   required String postId,
-  required dynamic postData,
+  required var postData,
   required String userId,
   required String token,
 }) async {

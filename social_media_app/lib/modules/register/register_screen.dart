@@ -119,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'userNameArray': userNameArray,
       'followers': [],
       'following': [],
-      'tokenNotification': token,
+      'tokenNotification': token ?? '',
       // 'posts': [],
     });
   }

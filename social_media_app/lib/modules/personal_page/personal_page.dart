@@ -306,12 +306,12 @@ class _PersonalPageState extends State<PersonalPage> {
                                                   // ]
                                                 });
                                                 //notification
+
                                                 FirebaseFirestore.instance
                                                     .collection('users')
-                                                    .doc(widget.userId)
+                                                    .doc(currentUserId)
                                                     .get()
                                                     .then((value) async {
-                                                  //notification
                                                   await FirebaseFirestore
                                                       .instance
                                                       .collection('users')
@@ -334,7 +334,6 @@ class _PersonalPageState extends State<PersonalPage> {
                                                     'userName': value
                                                         .data()!['userName']
                                                   });
-
                                                   await sendNotify(
                                                     title: value
                                                         .data()!['userName'],
@@ -343,7 +342,7 @@ class _PersonalPageState extends State<PersonalPage> {
                                                     postData: '',
                                                     userId:
                                                         value.data()!['userId'],
-                                                    token: value.data()![
+                                                    token: datadata![
                                                         'tokenNotification'],
                                                   );
                                                 });
@@ -755,49 +754,34 @@ class _PersonalPageState extends State<PersonalPage> {
                                                                 .collection(
                                                                     'notifications')
                                                                 .add({
-                                                              'title':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
-                                                                      'userName'],
+                                                              'title': datadata![
+                                                                  'userName'],
                                                               'body':
                                                                   'start following you',
                                                               'notificationDate':
                                                                   DateTime
                                                                       .now(),
                                                               'personalImage':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
+                                                                  datadata[
                                                                       'personalImage'],
                                                               'postId': '',
                                                               'userId':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
+                                                                  datadata[
                                                                       'userId'],
                                                               'userName':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
+                                                                  datadata[
                                                                       'userName']
                                                             });
 
                                                             await sendNotify(
-                                                              title:
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
-                                                                      'userName'],
+                                                              title: datadata[
+                                                                  'userName'],
                                                               body:
                                                                   'start follow you',
                                                               postId: '',
                                                               postData: '',
-                                                              userId:
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
-                                                                      'userId'],
+                                                              userId: datadata[
+                                                                  'userId'],
                                                               token: allFollowersData[
                                                                       index][
                                                                   'tokenNotification'],
@@ -1029,7 +1013,7 @@ class _PersonalPageState extends State<PersonalPage> {
                                                               //   data[index].data()['userId']
                                                               // ]
                                                             });
-
+                                                            //notification
                                                             await FirebaseFirestore
                                                                 .instance
                                                                 .collection(
@@ -1040,49 +1024,34 @@ class _PersonalPageState extends State<PersonalPage> {
                                                                 .collection(
                                                                     'notifications')
                                                                 .add({
-                                                              'title':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
-                                                                      'userName'],
+                                                              'title': datadata![
+                                                                  'userName'],
                                                               'body':
                                                                   'start following you',
                                                               'notificationDate':
                                                                   DateTime
                                                                       .now(),
                                                               'personalImage':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
+                                                                  datadata[
                                                                       'personalImage'],
                                                               'postId': '',
                                                               'userId':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
+                                                                  datadata[
                                                                       'userId'],
                                                               'userName':
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
+                                                                  datadata[
                                                                       'userName']
                                                             });
 
                                                             await sendNotify(
-                                                              title:
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
-                                                                      'userName'],
+                                                              title: datadata[
+                                                                  'userName'],
                                                               body:
                                                                   'start follow you',
                                                               postId: '',
                                                               postData: '',
-                                                              userId:
-                                                                  allFollowersData[
-                                                                          index]
-                                                                      [
-                                                                      'userId'],
+                                                              userId: datadata[
+                                                                  'userId'],
                                                               token: allFollowersData[
                                                                       index][
                                                                   'tokenNotification'],
