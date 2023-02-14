@@ -233,7 +233,7 @@ class _CommentState extends State<Comment> {
                             'commentDescription':
                                 FieldValue.arrayUnion([commentCont.text]),
                           });
-
+                          await getComments();
                           //notification
                           await FirebaseFirestore.instance
                               .collection('users')
@@ -247,6 +247,7 @@ class _CommentState extends State<Comment> {
                             'postId': widget.postId,
                             'userId': widget.post['userId'],
                             'userName': widget.post['userName'],
+                            'postData': widget.post,
                           });
 
                           await sendNotify(

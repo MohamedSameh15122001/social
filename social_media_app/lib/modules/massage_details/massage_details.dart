@@ -121,10 +121,14 @@ class _MassageDetailsState extends State<MassageDetails> {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Container(
-                                              decoration: BoxDecoration(
+                                              decoration: const BoxDecoration(
                                                 color: Colors.deepPurple,
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
+                                                borderRadius: BorderRadius.only(
+                                                  bottomLeft:
+                                                      Radius.circular(14),
+                                                  topLeft: Radius.circular(14),
+                                                  topRight: Radius.circular(10),
+                                                ),
                                               ),
                                               padding: const EdgeInsets.all(10),
                                               child: Text(
@@ -158,10 +162,14 @@ class _MassageDetailsState extends State<MassageDetails> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Container(
-                                            decoration: BoxDecoration(
+                                            decoration: const BoxDecoration(
                                               color: Colors.deepPurple,
-                                              borderRadius:
-                                                  BorderRadius.circular(30),
+                                              borderRadius: BorderRadius.only(
+                                                bottomRight:
+                                                    Radius.circular(14),
+                                                topRight: Radius.circular(14),
+                                                topLeft: Radius.circular(10),
+                                              ),
                                             ),
                                             padding: const EdgeInsets.all(10),
                                             child: Text(

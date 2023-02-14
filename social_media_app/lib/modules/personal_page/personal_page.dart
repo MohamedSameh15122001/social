@@ -380,81 +380,123 @@ class _PersonalPageState extends State<PersonalPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     //post
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          changeView = 0;
-                                        });
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${myPosts.length}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: changeView == 0
+                                            ? Colors.deepPurple
+                                            : Colors.white,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            changeView = 0;
+                                          });
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              '${myPosts.length}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                                color: changeView == 0
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            'Post',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 12,
+                                            Text(
+                                              'Post',
+                                              style: TextStyle(
+                                                color: changeView == 0
+                                                    ? Colors.white
+                                                    : Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     //followers
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          changeView = 1;
-                                        });
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${datadata?.data()['followers'].length}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: changeView == 1
+                                            ? Colors.deepPurple
+                                            : Colors.white,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            changeView = 1;
+                                          });
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              '${datadata?.data()['followers'].length}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                                color: changeView == 1
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            'Followers',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 12,
+                                            Text(
+                                              'Followers',
+                                              style: TextStyle(
+                                                color: changeView == 1
+                                                    ? Colors.white
+                                                    : Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     //following
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          changeView = 2;
-                                        });
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${datadata?.data()['following'].length}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: changeView == 2
+                                            ? Colors.deepPurple
+                                            : Colors.white,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            changeView = 2;
+                                          });
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              '${datadata?.data()['following'].length}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                                color: changeView == 2
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            'Following',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 12,
+                                            Text(
+                                              'Following',
+                                              style: TextStyle(
+                                                color: changeView == 2
+                                                    ? Colors.white
+                                                    : Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1113,8 +1155,20 @@ class _PersonalPageState extends State<PersonalPage> {
       ),
     );
   }
-}
 
+  makeState() async {
+    bool result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PersonalPage()),
+    );
+
+    if (result == true) {
+      setState(() {
+        // update state here
+      });
+    }
+  }
+}
 
 // Padding(
                                             //     padding:
@@ -1145,4 +1199,4 @@ class _PersonalPageState extends State<PersonalPage> {
                                             //             }),
                                             //       ),
                                             //     ),
-                                            //   )
+                                              // )

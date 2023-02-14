@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> {
             }
 
             return SingleChildScrollView(
-              physics:  const BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   stories(),
@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.deepPurple[300],
                           ))
                         : (allData.isEmpty)
-                            ?  const Center(child: Text('NO POSTS!'))
+                            ? const Center(child: Text('NO POSTS!'))
                             : ListView.builder(
                                 physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
@@ -433,6 +433,7 @@ class _HomePageState extends State<HomePage> {
                                                               'userName':
                                                                   datadata[
                                                                       'userName'],
+                                                              'postData': post,
                                                             });
 
                                                             await sendNotify(
