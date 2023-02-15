@@ -12,6 +12,7 @@ import 'package:social_media_app/modules/like/like.dart';
 import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/modules/post/post_page.dart';
 import 'package:social_media_app/modules/search/search_page.dart';
+import 'package:social_media_app/modules/story/story_viewer.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
 import 'package:video_viewer/video_viewer.dart';
@@ -24,6 +25,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List allStories = [];
+  List documenStorytId = [];
+
+  Future getAllStoriesData() async {
+    await getFollowing();
+    allStories = [];
+    documenStorytId = [];
+    for (var i = 0; i < following.length; i++) {
+      var ref = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(following[i])
+          .collection('stories')
+          .get()
+          .then((value) {
+        if (value.docs.isNotEmpty) {
+          allStories.add([]);
+          documenStorytId.add([]);
+          for (var element in value.docs) {
+            allStories[i].add(element.data());
+            documenStorytId[i].add(element.id);
+          }
+        }
+      }).catchError((e) {});
+    }
+  }
+
   var commentCont = TextEditingController();
   VideoViewerController videoViewerController = VideoViewerController();
 
@@ -135,6 +162,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     internetConection(context);
+    getAllStoriesData();
     // sendNotify(
     //     title: 'first',
     //     body: 'imports',
@@ -603,36 +631,85 @@ class _HomePageState extends State<HomePage> {
   stories() => Container(
         height: 140,
         padding: const EdgeInsets.only(left: 25),
-        child: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          scrollDirection: Axis.horizontal,
-          itemCount: 20,
-          itemBuilder: (context, storyIndex) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.deepPurple,
-                radius: 38,
-                child: isNetworkConnection
-                    ? const CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            'https://www.diethelmtravel.com/wp-content/uploads/2016/04/bill-gates-wealthiest-person.jpg'),
-                        radius: 34,
-                      )
-                    : CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 34,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.deepPurple[300],
+        child: Expanded(
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  //add the story
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.deepPurple,
+                    radius: 38,
+                    child: isNetworkConnection
+                        ? CircleAvatar(
+                            backgroundColor: Colors.deepPurple[300],
+                            radius: 34,
+                            child: const Icon(
+                              Icons.add,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: Colors.white,
+                            radius: 34,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.deepPurple[300],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                  ),
+                ),
               ),
-            );
-          },
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                itemCount: allStories.length,
+                itemBuilder: (context, storyIndex) {
+                  return InkWell(
+                    onTap: () {
+                      navigateTo(
+                          context,
+                          StoryViewer(
+                            stroyData: allStories[storyIndex],
+                            documenStorytId: documenStorytId[storyIndex],
+                          ));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.deepPurple,
+                        radius: 38,
+                        child: isNetworkConnection
+                            ? CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    allStories[storyIndex][0]['personalImage']),
+                                radius: 34,
+                              )
+                            : CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 34,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.deepPurple[300],
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       );
+
   appBar() => AppBar(
         leading: Padding(
           padding: const EdgeInsets.only(left: 20.0),
