@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:social_media_app/modules/layout/layout.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
 
@@ -26,56 +27,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future signUp() async {
     internetConection(context);
-    if (userNameController.text.isEmpty ||
-        ageController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              backgroundColor: Colors.deepPurple[200],
-              content: const Text(
-                'you should complete your information!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            );
-          });
-    } else {
-      if (passwordConfirmed()) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(color: Colors.deepPurple),
-              );
-            });
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim());
-
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-
-        await addUserDetails(
-          userNameController.text.trim(),
-          emailController.text.trim(),
-          int.parse(ageController.text.trim()),
-        );
-
-        //pop the loading circle
-      } else {
+    try {
+      if (userNameController.text.isEmpty ||
+          ageController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          passwordController.text.isEmpty ||
+          confirmPasswordController.text.isEmpty) {
         showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 backgroundColor: Colors.deepPurple[200],
                 content: const Text(
-                  'the password is not the same',
+                  'you should complete your information!',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -83,7 +47,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               );
             });
+      } else {
+        if (passwordConfirmed()) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Colors.deepPurple),
+                );
+              });
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim());
+
+          await addUserDetails(
+            userNameController.text.trim(),
+            emailController.text.trim(),
+            int.parse(ageController.text.trim()),
+          );
+          // ignore: use_build_context_synchronously
+          Navigator.pop(context);
+          //pop the loading circle
+          navigateAndFinish(context, const Layout());
+        } else {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  backgroundColor: Colors.deepPurple[200],
+                  content: const Text(
+                    'the password is not the same',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              });
+        }
       }
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: Colors.deepPurple[200],
+              content: Text(
+                e.message.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          });
     }
   }
 
@@ -99,6 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     for (int i = 0; i < userName.length; i++) {
       userNameArray.add(userName.substring(0, i + 1).toLowerCase());
     }
+    currentUserId = FirebaseAuth.instance.currentUser!.uid;
     // print(user NameArray); // Output: [m, mo, moh, moha, moham, mohame, mohamed]
     await FirebaseFirestore.instance
         .collection('users')
@@ -198,6 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
+                    keyboardType: TextInputType.number,
                     cursorColor: Colors.deepPurple,
                     controller: ageController,
                     decoration: InputDecoration(
@@ -221,6 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
+                    keyboardType: TextInputType.emailAddress,
                     cursorColor: Colors.deepPurple,
                     controller: emailController,
                     decoration: InputDecoration(

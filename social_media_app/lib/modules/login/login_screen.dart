@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:social_media_app/modules/layout/layout.dart';
 
 import 'package:social_media_app/modules/password/forget_pw_screen.dart';
+import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
 
 // ignore: must_be_immutable
@@ -40,10 +42,13 @@ class _LoginScreenState extends State<LoginScreen> {
         password: passwordController.text.trim(),
       );
 
+      currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
       //pop the loading circle
 
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
+      navigateAndFinish(context, const Layout());
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       showDialog(

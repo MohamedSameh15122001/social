@@ -72,12 +72,15 @@ class _HomePageState extends State<HomePage> {
         }
       }).catchError((e) {});
     }
-
+    print(documenStorytId);
     for (var i = 0; i < documenStorytId.length; i++) {
+      print(i);
       if (documenStorytId[i].isEmpty) {
         documenStorytId.removeAt(i);
       }
     }
+    print(documenStorytId);
+    print('[[[[[[[[[[[[[[[[[[[[object]]]]]]]]]]]]]]]]]]]]');
     for (var i = 0; i < allStories.length; i++) {
       if (allStories[i].isEmpty) {
         allStories.removeAt(i);
@@ -752,6 +755,9 @@ class _HomePageState extends State<HomePage> {
                           scrollDirection: Axis.horizontal,
                           itemCount: allStories.length,
                           itemBuilder: (context, storyIndex) {
+                            // print(allStories[0]);
+                            // print(documenStorytId);
+                            // print(']]]]]]]]]]]]]]]]]]]]]]]]]');
                             return InkWell(
                               onTap: () {
                                 navigateTo(
