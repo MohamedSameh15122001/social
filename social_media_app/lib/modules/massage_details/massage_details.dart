@@ -27,6 +27,7 @@ class _MassageDetailsState extends State<MassageDetails> {
       userMassageData = value.data()!;
       // print(value.data());
     });
+    setState(() {});
     // print(userMassageData);
     _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     setState(() {});

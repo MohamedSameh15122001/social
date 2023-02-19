@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
@@ -11,6 +12,16 @@ void navigateTo(context, widget) {
     context,
     MaterialPageRoute(
       builder: (context) => widget,
+    ),
+  );
+}
+
+void navigateToWithAnimation(context, widget, PageTransitionType type) {
+  Navigator.push(
+    context,
+    PageTransition(
+      child: widget,
+      type: type,
     ),
   );
 }

@@ -175,6 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: TextField(
                     cursorColor: Colors.deepPurple,
                     controller: userNameController,
+                    maxLength: 12,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(color: Colors.white),

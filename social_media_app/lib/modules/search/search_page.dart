@@ -164,7 +164,9 @@ class _SearchState extends State<Search> {
                                                   Colors.deepPurple,
                                               radius: 34,
                                               child: !isLoading
-                                                  ? const CircularProgressIndicator()
+                                                  ? const CircularProgressIndicator(
+                                                      color: Colors.deepPurple,
+                                                    )
                                                   : CircleAvatar(
                                                       backgroundImage:
                                                           NetworkImage(data[
@@ -262,7 +264,11 @@ class _SearchState extends State<Search> {
                                         child: Container(
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                            color: Colors.deepPurple,
+                                            color: following.contains(
+                                                    data[index]
+                                                        .data()['userId'])
+                                                ? Colors.grey[600]
+                                                : Colors.deepPurple,
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
@@ -292,7 +298,10 @@ class _SearchState extends State<Search> {
               ),
             );
           }
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+            color: Colors.deepPurple,
+          ));
         },
       ),
     );

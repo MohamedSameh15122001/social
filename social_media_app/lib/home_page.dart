@@ -1,21 +1,24 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:social_media_app/models/user_model.dart';
 import 'package:social_media_app/modules/comment/comment.dart';
-import 'package:social_media_app/modules/like/like.dart';
 import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/modules/post/post_page.dart';
 import 'package:social_media_app/modules/search/search_page.dart';
+import 'package:social_media_app/modules/story/add_story.dart';
 import 'package:social_media_app/modules/story/story_viewer.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
 import 'package:video_viewer/video_viewer.dart';
+
+import 'modules/like/like.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -27,8 +30,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List allStories = [];
   List documenStorytId = [];
+  bool isStoryLoading = false;
 
   Future getAllStoriesData() async {
+    setState(() {
+      isStoryLoading = true;
+    });
+
     await getFollowing();
     allStories = [];
     documenStorytId = [];
@@ -38,17 +46,46 @@ class _HomePageState extends State<HomePage> {
           .doc(following[i])
           .collection('stories')
           .get()
-          .then((value) {
-        if (value.docs.isNotEmpty) {
-          allStories.add([]);
-          documenStorytId.add([]);
-          for (var element in value.docs) {
-            allStories[i].add(element.data());
-            documenStorytId[i].add(element.id);
+          .then((value) async {
+        allStories.add([]);
+        documenStorytId.add([]);
+        for (var element in value.docs) {
+          if (!element
+              .data()['date']
+              .toDate()
+              .add(const Duration(days: 1))
+              .isAfter(DateTime.now())) {
+            if (element.data()['storyImagePath'].isNotEmpty) {
+              await FirebaseStorage.instance
+                  .ref('images/${element.data()['storyImagePath']}')
+                  .delete();
+            }
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(following[i])
+                .collection('stories')
+                .doc(element.id)
+                .delete();
           }
+          documenStorytId[i].add(element.id);
+          allStories[i].add(element.data());
         }
       }).catchError((e) {});
     }
+
+    for (var i = 0; i < documenStorytId.length; i++) {
+      if (documenStorytId[i].isEmpty) {
+        documenStorytId.removeAt(i);
+      }
+    }
+    for (var i = 0; i < allStories.length; i++) {
+      if (allStories[i].isEmpty) {
+        allStories.removeAt(i);
+      }
+    }
+    setState(() {
+      isStoryLoading = false;
+    });
   }
 
   var commentCont = TextEditingController();
@@ -270,7 +307,15 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.deepPurple[300],
                           ))
                         : (allData.isEmpty)
-                            ? const Center(child: Text('NO POSTS!'))
+                            ? SizedBox(
+                                height: MediaQuery.of(context).size.height * .5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Center(child: Text('NO POSTS!')),
+                                  ],
+                                ),
+                              )
                             : ListView.builder(
                                 physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
@@ -585,12 +630,35 @@ class _HomePageState extends State<HomePage> {
                                                         const Spacer(),
                                                         InkWell(
                                                           onTap: () {
-                                                            navigateTo(
-                                                                context,
-                                                                Like(
-                                                                  likesId: post[
-                                                                      'likes'],
-                                                                ));
+                                                            // navigateTo(
+                                                            //     context,
+                                                            // Like(
+                                                            //   likesId: post[
+                                                            //       'likes'],
+                                                            //     ));
+                                                            //--------------------
+                                                            Navigator.push(
+                                                              context,
+                                                              PageTransition(
+                                                                  child: Like(
+                                                                      likesId: post[
+                                                                          'likes']),
+                                                                  childCurrent:
+                                                                      const HomePage(),
+                                                                  duration: const Duration(
+                                                                      milliseconds:
+                                                                          200),
+                                                                  type: PageTransitionType
+                                                                      .rightToLeftJoined),
+                                                            );
+                                                            //---------------------------
+                                                            // navigateToWithAnimation(
+                                                            //     context,
+                                                            //     Like(
+                                                            //         likesId: post[
+                                                            //             'likes']),
+                                                            //     PageTransitionType
+                                                            //         .rightToLeft);
                                                           },
                                                           child: const Icon(
                                                             Icons.details,
@@ -636,7 +704,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               InkWell(
                 onTap: () {
-                  //add the story
+                  navigateTo(context, const addStory());
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
@@ -665,46 +733,62 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                itemCount: allStories.length,
-                itemBuilder: (context, storyIndex) {
-                  return InkWell(
-                    onTap: () {
-                      navigateTo(
-                          context,
-                          StoryViewer(
-                            stroyData: allStories[storyIndex],
-                            documenStorytId: documenStorytId[storyIndex],
-                          ));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.deepPurple,
-                        radius: 38,
-                        child: isNetworkConnection
-                            ? CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    allStories[storyIndex][0]['personalImage']),
-                                radius: 34,
-                              )
-                            : CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 34,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.deepPurple[300],
-                                  ),
+              isStoryLoading
+                  ? SizedBox(
+                      width: MediaQuery.of(context).size.width * .5,
+                      child: Center(
+                          child: CircularProgressIndicator(
+                        color: Colors.deepPurple[300],
+                      )),
+                    )
+                  : allStories.isEmpty
+                      ? SizedBox(
+                          width: MediaQuery.of(context).size.width * .5,
+                          child: const Center(child: Text('No Stroies!')),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: allStories.length,
+                          itemBuilder: (context, storyIndex) {
+                            return InkWell(
+                              onTap: () {
+                                navigateTo(
+                                    context,
+                                    StoryViewer(
+                                      storyData: allStories[storyIndex],
+                                      lengthOfData: allStories.length,
+                                      allStories: allStories,
+                                      currentIndex: storyIndex,
+                                    ));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.deepPurple,
+                                  radius: 38,
+                                  child: isNetworkConnection
+                                      ? CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              allStories[storyIndex][0]
+                                                  ['personalImage']),
+                                          radius: 34,
+                                        )
+                                      : CircleAvatar(
+                                          backgroundColor: Colors.white,
+                                          radius: 34,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.deepPurple[300],
+                                            ),
+                                          ),
+                                        ),
                                 ),
                               ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                            );
+                          },
+                        ),
             ],
           ),
         ),

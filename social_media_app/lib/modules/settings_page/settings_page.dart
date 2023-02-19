@@ -209,6 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 //username
                                 TextField(
                                   controller: usernameController,
+                                  maxLength: 12,
                                   decoration: InputDecoration(
                                     enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(

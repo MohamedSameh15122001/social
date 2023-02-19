@@ -116,6 +116,7 @@ class _MassagePageState extends State<MassagePage> {
                             top: 20,
                           ),
                           child: Container(
+                            // width: double.infinity,
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -142,28 +143,32 @@ class _MassagePageState extends State<MassagePage> {
                                 const SizedBox(
                                   width: 6,
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      followingData[index]['userName'],
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.deepPurple,
+                                Expanded(
+                                  flex: 100,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        followingData[index]['userName'],
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.deepPurple,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      height: 6,
-                                    ),
-                                    const Text(
-                                      'Shall we meet today?',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
+                                      const SizedBox(
+                                        height: 6,
                                       ),
-                                    ),
-                                  ],
+                                      const Text(
+                                        'Shall we meet today?',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 const Spacer(),
                                 Column(

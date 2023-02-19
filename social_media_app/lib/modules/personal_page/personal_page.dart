@@ -353,7 +353,10 @@ class _PersonalPageState extends State<PersonalPage> {
                                             child: Container(
                                               padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
-                                                color: Colors.deepPurple,
+                                                color: myFollowing
+                                                        .contains(widget.userId)
+                                                    ? Colors.grey[700]
+                                                    : Colors.deepPurple,
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -838,8 +841,15 @@ class _PersonalPageState extends State<PersonalPage> {
                                                                   .all(10),
                                                           decoration:
                                                               BoxDecoration(
-                                                            color: Colors
-                                                                .deepPurple,
+                                                            color: myFollowing.contains(
+                                                                    allFollowersData[
+                                                                            index]
+                                                                        [
+                                                                        'userId'])
+                                                                ? Colors
+                                                                    .grey[600]
+                                                                : Colors
+                                                                    .deepPurple,
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
@@ -1108,8 +1118,15 @@ class _PersonalPageState extends State<PersonalPage> {
                                                                   .all(10),
                                                           decoration:
                                                               BoxDecoration(
-                                                            color: Colors
-                                                                .deepPurple,
+                                                            color: myFollowing.contains(
+                                                                    allFollowingData[
+                                                                            index]
+                                                                        [
+                                                                        'userId'])
+                                                                ? Colors
+                                                                    .grey[600]
+                                                                : Colors
+                                                                    .deepPurple,
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(

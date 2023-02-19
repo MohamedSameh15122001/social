@@ -1,11 +1,23 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:story_view/story_view.dart';
 
 class StoryViewer extends StatefulWidget {
-  final stroyData;
+  final storyData;
   final documenStorytId;
-  const StoryViewer({super.key, this.stroyData, this.documenStorytId});
+  final lengthOfData;
+  final allStories;
+  final currentIndex;
+  const StoryViewer(
+      {super.key,
+      this.storyData,
+      this.documenStorytId,
+      this.lengthOfData,
+      this.allStories,
+      this.currentIndex});
 
   @override
   _StoryViewerState createState() => _StoryViewerState();
@@ -15,36 +27,56 @@ class _StoryViewerState extends State<StoryViewer> {
   final storyController = StoryController();
 
   List<StoryItem> stories = [];
+  List colors = [
+    Colors.red,
+    Colors.blue,
+    Colors.black,
+    Colors.deepPurple,
+    Colors.amber,
+    Colors.grey,
+    Colors.deepOrange,
+    Colors.indigo,
+    Colors.cyanAccent,
+    Colors.pinkAccent,
+  ];
+  Random random = Random();
+
+  var randomNumber;
+
   addItems() {
+    randomNumber = random.nextInt(10);
+
     stories = [];
-    for (var i = 0; i < widget.stroyData.length; i++) {
-      if (widget.stroyData[i]['storyText'].isNotEmpty) {
+    for (var i = 0; i < widget.storyData.length; i++) {
+      if (widget.storyData[i]['storyImagePath'].isEmpty) {
         stories.add(
           StoryItem.text(
-            title: widget.stroyData[i]['storyText'],
-            backgroundColor: Colors.red,
+            title: widget.storyData[i]['caption'],
+            backgroundColor: colors[randomNumber],
           ),
         );
-      } else if (widget.stroyData[i]['storyVideo'].isNotEmpty) {
-        stories.add(
-          StoryItem.pageVideo(
-            widget.stroyData[i]['storyVideo'],
-            controller: storyController,
-            caption: widget.stroyData[i]['caption'].isNotEmpty
-                ? widget.stroyData[i]['caption']
-                : '',
-          ),
-        );
-      } else {
-        stories.add(
-          StoryItem.pageImage(
-            controller: storyController,
-            url: widget.stroyData[i]['storyImage'],
-            caption: widget.stroyData[i]['caption'].isNotEmpty
-                ? widget.stroyData[i]['caption']
-                : '',
-          ),
-        );
+      } else if (widget.storyData[i]['storyImagePath'].isNotEmpty) {
+        if (widget.storyData[i]['storyImagePath'].endsWith('.mp4')) {
+          stories.add(
+            StoryItem.pageVideo(
+              widget.storyData[i]['storyImage'],
+              controller: storyController,
+              caption: widget.storyData[i]['caption'].isNotEmpty
+                  ? widget.storyData[i]['caption']
+                  : '',
+            ),
+          );
+        } else {
+          stories.add(
+            StoryItem.pageImage(
+              controller: storyController,
+              url: widget.storyData[i]['storyImage'],
+              caption: widget.storyData[i]['caption'].isNotEmpty
+                  ? widget.storyData[i]['caption']
+                  : '',
+            ),
+          );
+        }
       }
     }
     // setState(() {});
@@ -58,7 +90,7 @@ class _StoryViewerState extends State<StoryViewer> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime firstDate = widget.stroyData[0]['date'].toDate();
+    DateTime firstDate = widget.storyData[0]['date'].toDate();
     var format = DateFormat.yMMMMd().format(firstDate);
     return Scaffold(
       body: Stack(
@@ -68,8 +100,36 @@ class _StoryViewerState extends State<StoryViewer> {
             onStoryShow: (storyItem) {
               print('Showing a story item');
             },
+            onVerticalSwipeComplete: (p0) {},
             onComplete: () {
-              Navigator.pop(context);
+              if (widget.lengthOfData - 1 > widget.currentIndex) {
+                Navigator.pushReplacement(
+                  context,
+                  PageTransition(
+                      child: StoryViewer(
+                        storyData: widget.allStories[widget.currentIndex + 1],
+                        allStories: widget.allStories,
+                        currentIndex: widget.currentIndex + 1,
+                        lengthOfData: widget.lengthOfData,
+                      ),
+                      childCurrent: Container(),
+                      duration: const Duration(milliseconds: 400),
+                      type: PageTransitionType.rightToLeftJoined),
+                );
+
+                // Navigator.pushReplacement(context, MaterialPageRoute(
+                //   builder: (context) {
+                //     return StoryViewer(
+                //       storyData: widget.allStories[widget.currentIndex + 1],
+                //       allStories: widget.allStories,
+                //       currentIndex: widget.currentIndex + 1,
+                //       lengthOfData: widget.lengthOfData,
+                //     );
+                //   },
+                // ));
+              } else {
+                Navigator.pop(context);
+              }
             },
             controller: storyController,
             repeat: false,
@@ -84,7 +144,7 @@ class _StoryViewerState extends State<StoryViewer> {
                   CircleAvatar(
                     radius: 24,
                     backgroundImage: NetworkImage(
-                      widget.stroyData[0]['personalImage'],
+                      widget.storyData[0]['personalImage'],
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -92,7 +152,7 @@ class _StoryViewerState extends State<StoryViewer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.stroyData[0]['userName'],
+                        widget.storyData[0]['userName'],
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
