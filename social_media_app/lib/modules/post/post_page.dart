@@ -320,14 +320,14 @@ class _PostPageState extends State<PostPage> {
                               borderRadius: BorderRadius.circular(18),
                               child: widget.postData['postImage'] != ''
                                   ? SizedBox(
-                                      height: 500,
-                                      width: double.infinity,
+                                      // height: 500,
+                                      // width: double.infinity,
                                       child: InstaImageViewer(
-                                        child: Image.network(
-                                          '${widget.postData['postImage']}',
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ))
+                                      child: Image.network(
+                                        '${widget.postData['postImage']}',
+                                        // fit: BoxFit.cover,
+                                      ),
+                                    ))
                                   : Container(),
                             ),
                       const SizedBox(height: 20),

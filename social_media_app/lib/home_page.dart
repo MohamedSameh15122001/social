@@ -158,6 +158,17 @@ class _HomePageState extends State<HomePage> {
       }).catchError((e) {});
     }
 
+    // for (int i = documentId.length - 1; i >= 0; i--) {
+    //   if (documentId[i].isEmpty) {
+    //     documentId.removeAt(i);
+    //   }
+    // }
+    // for (int i = allData.length - 1; i >= 0; i--) {
+    //   if (allData[i].isEmpty) {
+    //     allData.removeAt(i);
+    //   }
+    // }
+
     setState(() {
       isLoading = false;
     });
@@ -255,28 +266,28 @@ class _HomePageState extends State<HomePage> {
     });
     //to get the notification when app in forground (in use)
     FirebaseMessaging.onMessage.listen((event) {
-      navigateTo(
-        context,
-        PostPage(
-          postDocumentId: event.data['postId'],
-          postData: event.data['postData'],
-        ),
-      );
+      // navigateTo(
+      //   context,
+      //   PostPage(
+      //     postDocumentId: event.data['postId'],
+      //     postData: event.data['postData'],
+      //   ),
+      // );
       // print('[]]]]]]]]]]]]]]]]]]]]');
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              backgroundColor: Colors.deepPurple[200],
-              content: Text(
-                event.notification!.body.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            );
-          });
+      // showDialog(
+      //     context: context,
+      //     builder: (context) {
+      //       return AlertDialog(
+      //         backgroundColor: Colors.deepPurple[200],
+      //         content: Text(
+      //           event.notification!.body.toString(),
+      //           style: const TextStyle(
+      //             color: Colors.white,
+      //             fontWeight: FontWeight.bold,
+      //           ),
+      //         ),
+      //       );
+      //     });
     });
     getAllData();
     super.initState();
@@ -493,51 +504,51 @@ class _HomePageState extends State<HomePage> {
                                                                 documentId[
                                                                     userFollowingIndex],
                                                                 postIndex);
-                                                            await FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    'users')
-                                                                .doc(post[
-                                                                    'userId'])
-                                                                .collection(
-                                                                    'notifications')
-                                                                .add({
-                                                              'title': datadata![
-                                                                  'userName'],
-                                                              'body':
-                                                                  'react in your post',
-                                                              'notificationDate':
-                                                                  DateTime
-                                                                      .now(),
-                                                              'personalImage':
-                                                                  datadata[
-                                                                      'personalImage'],
-                                                              'postId': documentId[
-                                                                      userFollowingIndex]
-                                                                  [postIndex],
-                                                              'userId':
-                                                                  datadata[
-                                                                      'userId'],
-                                                              'userName':
-                                                                  datadata[
-                                                                      'userName'],
-                                                              'postData': post,
-                                                            });
+                                                            // await FirebaseFirestore
+                                                            //     .instance
+                                                            //     .collection(
+                                                            //         'users')
+                                                            //     .doc(post[
+                                                            //         'userId'])
+                                                            //     .collection(
+                                                            //         'notifications')
+                                                            //     .add({
+                                                            //   'title': datadata![
+                                                            //       'userName'],
+                                                            //   'body':
+                                                            //       'react in your post',
+                                                            //   'notificationDate':
+                                                            //       DateTime
+                                                            //           .now(),
+                                                            //   'personalImage':
+                                                            //       datadata[
+                                                            //           'personalImage'],
+                                                            //   'postId': documentId[
+                                                            //           userFollowingIndex]
+                                                            //       [postIndex],
+                                                            //   'userId':
+                                                            //       datadata[
+                                                            //           'userId'],
+                                                            //   'userName':
+                                                            //       datadata[
+                                                            //           'userName'],
+                                                            //   'postData': post,
+                                                            // });
 
-                                                            await sendNotify(
-                                                              title: datadata[
-                                                                  'userName'],
-                                                              body:
-                                                                  'react in your post',
-                                                              postId: documentId[
-                                                                      userFollowingIndex]
-                                                                  [postIndex],
-                                                              postData: post,
-                                                              userId: datadata[
-                                                                  'userId'],
-                                                              token: post[
-                                                                  'tokenNotification'],
-                                                            );
+                                                            // await sendNotify(
+                                                            //   title: datadata[
+                                                            //       'userName'],
+                                                            //   body:
+                                                            //       'react in your post',
+                                                            //   postId: documentId[
+                                                            //           userFollowingIndex]
+                                                            //       [postIndex],
+                                                            //   postData: post,
+                                                            //   userId: datadata[
+                                                            //       'userId'],
+                                                            //   token: post[
+                                                            //       'tokenNotification'],
+                                                            // );
                                                           },
                                                           child: Icon(
                                                             Icons.favorite,
@@ -831,17 +842,17 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.grey[300],
         elevation: 0,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.deepPurple,
-              child: IconButton(
-                onPressed: () => signOut(context),
-                icon: const Icon(Icons.logout),
-                color: Colors.white,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 10.0),
+          //   child: CircleAvatar(
+          //     backgroundColor: Colors.deepPurple,
+          //     child: IconButton(
+          //       onPressed: () => signOut(context),
+          //       icon: const Icon(Icons.logout),
+          //       color: Colors.white,
+          //     ),
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: CircleAvatar(

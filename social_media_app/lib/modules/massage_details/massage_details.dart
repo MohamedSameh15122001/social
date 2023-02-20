@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
@@ -33,10 +40,37 @@ class _MassageDetailsState extends State<MassageDetails> {
     setState(() {});
   }
 
+  //---------------------------------
+  File? imageFile;
+  bool isLoading = false;
+
+  Future<void> editImage(ImageSource source) async {
+    try {
+      var pickedImage = await ImagePicker().pickImage(source: source);
+
+      imageFile = File(pickedImage!.path);
+
+      setState(() {});
+
+      // imageFile = pickedImage;
+      // var rand = Random().nextInt(100000);
+      // var imageName = '${basename(pickedImage.path)}';
+      // var ref =
+      //     FirebaseStorage.instance.ref('images').child(imageName);
+      // await ref.putFile(file);
+      // imageUrl = ref.getDownloadURL();
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
+  }
+
   @override
   void initState() {
     internetConection(context);
     getUserMassageData();
+
     super.initState();
   }
 
@@ -98,6 +132,18 @@ class _MassageDetailsState extends State<MassageDetails> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
+                    isLoading
+                        ? Column(
+                            children: const [
+                              LinearProgressIndicator(
+                                color: Colors.deepPurple,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          )
+                        : Container(),
                     Expanded(
                       child: datadata.isEmpty
                           ? Text('Say hello to ${userMassageData['userName']}')
@@ -132,12 +178,21 @@ class _MassageDetailsState extends State<MassageDetails> {
                                                 ),
                                               ),
                                               padding: const EdgeInsets.all(10),
-                                              child: Text(
-                                                datadata[index]['text'],
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              )),
+                                              child: (datadata[index]
+                                                          ['messageImage']
+                                                      .isNotEmpty)
+                                                  ? InstaImageViewer(
+                                                      child: Image.network(
+                                                          datadata[index]
+                                                              ['messageImage']),
+                                                    )
+                                                  : Text(
+                                                      datadata[index]['text'],
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    )),
+                                          const SizedBox(height: 4),
                                           Text(
                                             format,
                                             style: const TextStyle(
@@ -173,13 +228,22 @@ class _MassageDetailsState extends State<MassageDetails> {
                                               ),
                                             ),
                                             padding: const EdgeInsets.all(10),
-                                            child: Text(
-                                              datadata[index]['text'],
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
+                                            child: (datadata[index]
+                                                        ['messageImage']
+                                                    .isNotEmpty)
+                                                ? InstaImageViewer(
+                                                    child: Image.network(
+                                                        datadata[index]
+                                                            ['messageImage']),
+                                                  )
+                                                : Text(
+                                                    datadata[index]['text'],
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
                                           ),
+                                          const SizedBox(height: 4),
                                           Text(
                                             format,
                                             style: const TextStyle(
@@ -197,6 +261,47 @@ class _MassageDetailsState extends State<MassageDetails> {
                               },
                             ),
                     ),
+                    (imageFile != null)
+                        ? Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          .9,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              .3,
+                                      child: Image(
+                                          fit: BoxFit.fill,
+                                          image: FileImage(imageFile!)),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.deepPurple,
+                                      child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              imageFile = null;
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.exit_to_app,
+                                            color: Colors.white,
+                                          )),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : Container(),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
                         Expanded(
@@ -207,6 +312,14 @@ class _MassageDetailsState extends State<MassageDetails> {
                             keyboardType: TextInputType.emailAddress,
                             controller: massageCont,
                             decoration: InputDecoration(
+                              prefixIcon: IconButton(
+                                onPressed: () => editImage(ImageSource.gallery),
+                                icon: const Icon(
+                                  Icons.image,
+                                  color: Colors.deepPurple,
+                                  size: 30,
+                                ),
+                              ),
                               enabledBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white),
                                 borderRadius: BorderRadius.only(
@@ -230,7 +343,10 @@ class _MassageDetailsState extends State<MassageDetails> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              if (massageCont.text == '') {
+                              dynamic imageUrl;
+                              int counter = 0;
+                              String? imagePath;
+                              if (massageCont.text == '' && imageFile == null) {
                                 showDialog(
                                     context: context,
                                     builder: (context) {
@@ -246,6 +362,25 @@ class _MassageDetailsState extends State<MassageDetails> {
                                       );
                                     });
                               } else {
+                                if (imageFile != null) {
+                                  // setState(() {
+                                  //   isLoading = true;
+                                  // });
+                                  var refShared =
+                                      await SharedPreferences.getInstance();
+                                  counter = refShared.getInt('counter')!;
+                                  var ref = FirebaseStorage.instance
+                                      .ref('images')
+                                      .child(
+                                        'messages/$counter${Uri.file(imageFile!.path).pathSegments.last}',
+                                      );
+                                  imagePath =
+                                      'messages/$counter${Uri.file(imageFile!.path).pathSegments.last}';
+                                  await ref.putFile(imageFile!);
+                                  imageUrl = await ref.getDownloadURL();
+                                  refShared.setInt('counter', counter + 1);
+                                  counter = refShared.getInt('counter')!;
+                                }
                                 await FirebaseFirestore.instance
                                     .collection('users')
                                     .doc(currentUserId)
@@ -257,6 +392,9 @@ class _MassageDetailsState extends State<MassageDetails> {
                                   'receiverId': widget.userId,
                                   'senderId': currentUserId,
                                   'text': massageCont.text,
+                                  'messageImage':
+                                      (imageFile != null) ? imageUrl : '',
+                                  'messageImagePath': imagePath ?? '',
                                 });
                                 await FirebaseFirestore.instance
                                     .collection('users')
@@ -269,6 +407,9 @@ class _MassageDetailsState extends State<MassageDetails> {
                                   'receiverId': widget.userId,
                                   'senderId': currentUserId,
                                   'text': massageCont.text,
+                                  'messageImage':
+                                      (imageFile != null) ? imageUrl : '',
+                                  'messageImagePath': imagePath ?? '',
                                 });
                                 massageCont.clear();
                                 // ignore: use_build_context_synchronously
@@ -278,6 +419,10 @@ class _MassageDetailsState extends State<MassageDetails> {
                                       .position.maxScrollExtent);
                                 });
                               }
+                              imageFile = null;
+                              // setState(() {
+                              //   isLoading = false;
+                              // });
                             },
                             child: Container(
                               height: 64,
@@ -305,7 +450,9 @@ class _MassageDetailsState extends State<MassageDetails> {
               );
             }
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.deepPurple,
+              ),
             );
           }),
     );

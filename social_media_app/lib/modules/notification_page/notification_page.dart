@@ -15,7 +15,7 @@ class NotificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return check() == null || !check().isEmpty
+    return check() == null
         ? Scaffold(
             backgroundColor: Colors.grey[300],
             appBar: AppBar(
@@ -72,10 +72,11 @@ class NotificationPage extends StatelessWidget {
                           onTap: () {
                             // navigateTo(
                             //     context,
-                            //     PostPage(
-                            //       postData: datadata!.data()['personalImage'],
-                            //       postDocumentId: datadata.data()['personalImage'],
-                            //     ));
+                            // PostPage(
+                            //   postData: datadata!.data(),
+                            //   postDocumentId:
+                            //       datadata.data()['personalImage'],
+                            // ));
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(

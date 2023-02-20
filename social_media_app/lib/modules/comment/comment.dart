@@ -114,6 +114,7 @@ class _CommentState extends State<Comment> {
                       )
                     : Expanded(
                         child: ListView.builder(
+                          physics: const BouncingScrollPhysics(),
                           itemCount: newData != null
                               ? newData!['commentDescription'].length
                               : widget.commentDescription.length,

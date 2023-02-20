@@ -349,11 +349,11 @@ class _PostState extends State<Post> {
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(30),
                                 child: SizedBox(
-                                  width: MediaQuery.of(context).size.width * .9,
-                                  height:
-                                      MediaQuery.of(context).size.height * .4,
+                                  // width: MediaQuery.of(context).size.width * .9,
+                                  // height:
+                                  //     MediaQuery.of(context).size.height * .4,
                                   child: Image(
-                                      fit: BoxFit.fill,
+                                      // fit: BoxFit.fill,
                                       image: FileImage(imageFile!)),
                                 ),
                               )

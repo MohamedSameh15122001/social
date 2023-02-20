@@ -118,8 +118,13 @@ class _SettingsPageState extends State<SettingsPage> {
               }
             }
 
+            bool isLoading = false;
             //update data
             updateData() async {
+              setState(() {
+                isLoading = true;
+              });
+
               if (imageFile != null) {
                 var refShared = await SharedPreferences.getInstance();
                 counter = refShared.getInt('counter')!;
@@ -152,6 +157,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 'personalImage':
                     (imageFile != null) ? imageUrl : userModel!.personalImage,
                 'personalImagePath': imagePath ?? '',
+              });
+
+              setState(() {
+                isLoading = false;
               });
 
               Navigator.of(context).pop();
@@ -342,6 +351,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * .06,
                   ),
+                  isLoading
+                      ? const LinearProgressIndicator(
+                          color: Colors.deepPurple,
+                        )
+                      : Container(),
                   //confirm edit
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),

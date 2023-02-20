@@ -76,6 +76,7 @@ class _LikeState extends State<Like> {
               : Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
                     itemCount: widget.likesId.length,
                     itemBuilder: (context, index) {
                       return Padding(
