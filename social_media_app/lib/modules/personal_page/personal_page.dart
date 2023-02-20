@@ -699,14 +699,21 @@ class _PersonalPageState extends State<PersonalPage> {
                                                           const SizedBox(
                                                             height: 6,
                                                           ),
-                                                          Text(
-                                                            allFollowersData[
-                                                                index]['bio'],
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.grey,
+                                                          SizedBox(
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                .4,
+                                                            child: Text(
+                                                              allFollowersData[
+                                                                  index]['bio'],
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
                                                             ),
                                                           ),
                                                         ],
@@ -975,14 +982,21 @@ class _PersonalPageState extends State<PersonalPage> {
                                                           const SizedBox(
                                                             height: 6,
                                                           ),
-                                                          Text(
-                                                            allFollowingData[
-                                                                index]['bio'],
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.grey,
+                                                          SizedBox(
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                .4,
+                                                            child: Text(
+                                                              allFollowingData[
+                                                                  index]['bio'],
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
                                                             ),
                                                           ),
                                                         ],

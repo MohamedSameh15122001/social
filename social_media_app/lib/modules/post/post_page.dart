@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:intl/intl.dart';
+import 'package:social_media_app/modules/layout/layout.dart';
 import 'package:social_media_app/shared/componant.dart';
 import 'package:social_media_app/shared/constants.dart';
 import 'package:video_viewer/video_viewer.dart';
@@ -13,13 +14,16 @@ import '../personal_page/personal_page.dart';
 class PostPage extends StatefulWidget {
   final postData;
   final postDocumentId;
-  const PostPage({super.key, this.postData, this.postDocumentId});
+  final edit;
+  const PostPage({super.key, this.postData, this.postDocumentId, this.edit});
 
   @override
   State<PostPage> createState() => _PostPageState();
 }
 
 class _PostPageState extends State<PostPage> {
+  var postCont = TextEditingController();
+
   VideoViewerController videoViewerController = VideoViewerController();
   Map<String, dynamic>? newData = {};
   var format;
@@ -48,6 +52,7 @@ class _PostPageState extends State<PostPage> {
 
   @override
   void initState() {
+    postCont.text = widget.postData['postDescription'];
     internetConection(context);
     getNewData();
     super.initState();
@@ -60,9 +65,85 @@ class _PostPageState extends State<PostPage> {
       appBar: AppBar(
         backgroundColor: Colors.grey[300],
         elevation: 0,
-        title: const Text(
-          'post',
-          style: TextStyle(color: Colors.black),
+        title: Row(
+          children: [
+            Text(
+              widget.edit != null ? 'Edit Post' : 'post',
+              style: const TextStyle(color: Colors.black),
+            ),
+            const Spacer(),
+            widget.edit != null
+                ? GestureDetector(
+                    onTap: () async {
+                      try {
+                        await internetConection(context);
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(currentUserId)
+                            .collection('posts')
+                            .doc(widget.postDocumentId)
+                            .update({'postDescription': postCont.text});
+                        navigateAndFinish(
+                            context,
+                            const Layout(
+                              index: 4,
+                            ));
+
+                        // Navigator.pop(context);
+                        // Navigator.pop(context);
+                        //---------------------
+                        // ignore: use_build_context_synchronously
+                        await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                backgroundColor: Colors.deepPurple[200],
+                                content: const Text(
+                                  'your post updated succesfully',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            });
+                      } catch (e) {
+                        await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                backgroundColor: Colors.deepPurple[200],
+                                content: const Text(
+                                  'Error happend',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Edit Now',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
+          ],
         ),
       ),
       body: isLoading
@@ -92,48 +173,62 @@ class _PostPageState extends State<PostPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          navigateTo(
-                              context,
-                              PersonalPage(
-                                userId: widget.postData['userId'],
-                              ));
-                        },
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  '${widget.postData!['personalImage']}'),
-                              radius: 24,
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              navigateTo(
+                                  context,
+                                  PersonalPage(
+                                    userId: widget.postData['userId'],
+                                  ));
+                            },
+                            child: Row(
                               children: [
-                                Text(
-                                  '${widget.postData!['userName']}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      '${widget.postData!['personalImage']}'),
+                                  radius: 24,
                                 ),
-                                Text(
-                                  format,
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 9,
-                                  ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${widget.postData!['userName']}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      format,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 9,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const Spacer(),
-                            widget.postData['userId'] == currentUserId
-                                ? PopupMenuButton(
-                                    child: const Icon(Icons.list_rounded),
-                                    onSelected: (value) async {
-                                      print(value);
-                                      print('*/********/*/*//////');
+                          ),
+                          const Spacer(),
+                          widget.postData['userId'] == currentUserId &&
+                                  widget.edit == null
+                              ? PopupMenuButton(
+                                  child: const Icon(Icons.list_rounded),
+                                  onSelected: (value) async {
+                                    if (value == 'edit') {
+                                      navigateTo(
+                                          context,
+                                          PostPage(
+                                            postData: widget.postData,
+                                            postDocumentId:
+                                                widget.postDocumentId,
+                                            edit: true,
+                                          ));
+                                    } else if (value == 'delete') {
                                       if (widget.postData['postImagePath']
                                           .isNotEmpty) {
                                         await FirebaseStorage.instance
@@ -165,30 +260,45 @@ class _PostPageState extends State<PostPage> {
                                             );
                                           });
                                       Navigator.pop(context, true);
-                                    },
-                                    itemBuilder: (context) {
-                                      return [
-                                        const PopupMenuItem(
-                                          value: 'asf',
-                                          child: Text('Delete Post'),
-                                        ),
-                                        // const PopupMenuItem(
-                                        //   value: 'asf',
-                                        //   child: Text('number 2'),
-                                        // ),
-                                        // const PopupMenuItem(
-                                        //   value: 'asf',
-                                        //   child: Text('number 3'),
-                                        // ),
-                                      ];
-                                    },
-                                  )
-                                : const Icon(Icons.list_rounded)
-                          ],
-                        ),
+                                    }
+                                  },
+                                  itemBuilder: (context) {
+                                    return [
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit Post'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete Post'),
+                                      ),
+                                      // const PopupMenuItem(
+                                      //   value: 'asf',
+                                      //   child: Text('number 2'),
+                                      // ),
+                                      // const PopupMenuItem(
+                                      //   value: 'asf',
+                                      //   child: Text('number 3'),
+                                      // ),
+                                    ];
+                                  },
+                                )
+                              : const Icon(Icons.list_rounded)
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      Text('${widget.postData['postDescription']}'),
+                      widget.edit != null
+                          ? TextField(
+                              controller: postCont,
+                              minLines: 1,
+                              maxLines: 10,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'write your post',
+                              ),
+                              cursorColor: Colors.deepPurple,
+                            )
+                          : Text('${widget.postData['postDescription']}'),
                       const SizedBox(height: 10),
                       widget.postData['postImagePath'].endsWith('.mp4')
                           ? ClipRRect(

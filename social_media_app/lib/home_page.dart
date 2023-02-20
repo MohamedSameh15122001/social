@@ -72,20 +72,27 @@ class _HomePageState extends State<HomePage> {
         }
       }).catchError((e) {});
     }
-    print(documenStorytId);
-    for (var i = 0; i < documenStorytId.length; i++) {
-      print(i);
+
+    // int documenStoryLength = documenStorytId.length;
+
+    // for (var i = 0; i < documenStoryLength; i++) {
+    //   if (documenStorytId[i].isEmpty) {
+    //     documenStorytId.removeAt(i);
+    //   }
+    // }
+    //-------------------------------------------------------
+    for (int i = documenStorytId.length - 1; i >= 0; i--) {
       if (documenStorytId[i].isEmpty) {
         documenStorytId.removeAt(i);
       }
     }
-    print(documenStorytId);
-    print('[[[[[[[[[[[[[[[[[[[[object]]]]]]]]]]]]]]]]]]]]');
-    for (var i = 0; i < allStories.length; i++) {
+    for (int i = allStories.length - 1; i >= 0; i--) {
       if (allStories[i].isEmpty) {
         allStories.removeAt(i);
       }
     }
+    //-------------------------------------------------------
+
     setState(() {
       isStoryLoading = false;
     });
@@ -277,6 +284,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // SystemChrome.setSystemUIOverlayStyle(
+    //   SystemUiOverlayStyle(
+    //     statusBarColor: Colors.grey[300],
+    //   ),
+    // );
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: appBar(),

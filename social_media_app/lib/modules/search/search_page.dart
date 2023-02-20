@@ -195,11 +195,18 @@ class _SearchState extends State<Search> {
                                                 const SizedBox(
                                                   height: 6,
                                                 ),
-                                                Text(
-                                                  data[index].data()['bio'],
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
+                                                SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      .4,
+                                                  child: Text(
+                                                    data[index].data()['bio'],
+                                                    overflow: TextOverflow.clip,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey,
+                                                    ),
                                                   ),
                                                 ),
                                               ],

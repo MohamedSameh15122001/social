@@ -9,7 +9,8 @@ import 'package:social_media_app/modules/personal_page/personal_page.dart';
 import '../post/add_post_screen.dart';
 
 class Layout extends StatefulWidget {
-  const Layout({Key? key}) : super(key: key);
+  final index;
+  const Layout({Key? key, this.index}) : super(key: key);
 
   @override
   State<Layout> createState() => _LayoutState();
@@ -17,6 +18,7 @@ class Layout extends StatefulWidget {
 
 class _LayoutState extends State<Layout> {
   //nav bar
+
   int currentIndex = 0;
   List<Widget> bottomNav = [
     const HomePage(),
@@ -25,6 +27,15 @@ class _LayoutState extends State<Layout> {
     const NotificationPage(),
     const PersonalPage()
   ];
+  @override
+  void initState() {
+    if (widget.index != null) {
+      currentIndex = widget.index;
+      widget.index == null;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(

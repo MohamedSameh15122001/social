@@ -102,7 +102,10 @@ class _CommentState extends State<Comment> {
         child: Column(
           children: [
             isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: CircularProgressIndicator(
+                    color: Colors.deepPurple,
+                  ))
                 : (newData == null
                         ? widget.commentDescription.isEmpty
                         : newData?['commentDescription'] == null)
@@ -150,6 +153,22 @@ class _CommentState extends State<Comment> {
                                           color: Colors.white,
                                         ),
                                       )),
+                                  WillPopScope(
+                                    child: Container(),
+                                    onWillPop: () async {
+                                      // Navigator.pushReplacement(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) => PostPage(
+                                      //       postDocumentId: widget.postId,
+                                      //       postData: widget.post,
+                                      //     ),
+                                      //   ),
+                                      // );
+
+                                      return true;
+                                    },
+                                  ),
                                 ],
                               ),
                             );
