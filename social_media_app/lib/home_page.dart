@@ -902,4 +902,67 @@ sendNotify({
       },
     ),
   );
+
+  //=============================
+  //download using flutter_downloader and path_provider and image_gallery_saver
+  //=============================
+
+//   Future<void> downloadFile(String fileName) async {
+//   // Request permission to write to external storage
+//   var status = await Permission.storage.request();
+//   if (status.isGranted) {
+//     // Get the directory where the file will be saved
+//     Directory directory = await getExternalStorageDirectory();
+//     String filePath = '${directory.path}/$fileName';
+
+//     // Create a reference to the file you want to download
+//     Reference ref = FirebaseStorage.instance.ref().child(fileName);
+
+//     // Start the download task
+//     await FlutterDownloader.enqueue(
+//       url: await ref.getDownloadURL(),
+//       savedDir: directory.path,
+//       fileName: fileName,
+//       showNotification: true,
+//       openFileFromNotification: true,
+//     );
+
+//     // Save the file to the device's gallery
+//     final result = await ImageGallerySaver.saveFile(filePath);
+//     if (result['isSuccess']) {
+//       print('File saved to gallery!');
+//     } else {
+//       print('Error saving file to gallery: ${result['errorMessage']}');
+//     }
+//   } else {
+//     print('Permission denied');
+//   }
+// }
+
+  //=============================
+  //download using http and path_provider and image_gallery_saver
+  //=============================
+
+  // Future<void> downloadAndSaveFile(String url, String fileName) async {
+  //   var response = await http.get(Uri.parse(url));
+
+  //   // Get the document directory
+  //   Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
+
+  //   // Create a new directory within the document directory
+  //   Directory directory =
+  //       await Directory('${appDocumentsDirectory.path}/images')
+  //           .create(recursive: true);
+
+  //   // Create the file path
+  //   String filePath = '${directory.path}/$fileName';
+
+  //   // Save the file
+  //   File file = File(filePath);
+  //   await file.writeAsBytes(response.bodyBytes);
+
+  //   // Save the file to the device's gallery
+  //   final result = await ImageGallerySaver.saveFile(filePath);
+  //   print(result); // Prints the path where the file is saved
+  // }
 }
