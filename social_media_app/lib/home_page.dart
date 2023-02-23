@@ -192,7 +192,11 @@ class _HomePageState extends State<HomePage> {
     return model;
   }
 
+  bool changeColor = false;
   like(postIndex, documentId, index) async {
+    // setState(() {
+    //   changeColor=!changeColor;
+    // });
     if (postIndex['likes'].contains(currentUserId)) {
       await FirebaseFirestore.instance
           .collection('users')

@@ -23,8 +23,8 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   var postCont = TextEditingController();
+  // bool changeColor = false;
 
-  VideoViewerController videoViewerController = VideoViewerController();
   Map<String, dynamic>? newData = {};
   var format;
   bool isLoading = false;
@@ -60,6 +60,7 @@ class _PostPageState extends State<PostPage> {
 
   @override
   Widget build(BuildContext context) {
+    VideoViewerController videoViewerController = VideoViewerController();
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
@@ -337,6 +338,10 @@ class _PostPageState extends State<PostPage> {
                           children: [
                             GestureDetector(
                               onTap: () async {
+                                // setState(() {
+                                //   changeColor = !changeColor;
+                                // });
+
                                 if (newData != null) {
                                   if (newData!['likes']
                                       .contains(currentUserId)) {
